@@ -39,7 +39,7 @@ const GAME = {
     Board: { Width: 10, Height: 20 },
     Tetrimino: { Length: 25 },
     TextStyle: new TextStyle({
-        fontFamily: 'Armada',
+        fontFamily: 'armada',
         fontSize: 18,
         fill: COLORS.White,
     }),
