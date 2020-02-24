@@ -1,5 +1,6 @@
 import("../pkg/index.js").catch(console.error);
 
+// aliases for Pixi's classes
 const Application = PIXI.Application;
 const Graphics = PIXI.Graphics;
 const Text = PIXI.Text;
@@ -10,7 +11,7 @@ const TextureCache = PIXI.utils.TextureCache;
 
 const loader = PIXI.Loader.shared;
 
-// Colors to be used in drawing tetris board
+// declare some constants
 const COLORS = {
     White: 0xFFFFFF,
     GreyFG: 0xEEEEEE,
@@ -23,8 +24,24 @@ const COLORS = {
     Blue: 0x3C9EE3,
     Orange: 0xFF6536,
 };
-const WIDTH  = 800;
-const HEIGHT = 600;
+
+const WIDTH  = 800;                     // canvas width
+const HEIGHT = 600;                     // canvas height
+
+const GAME = {
+    Board: { 
+        Width: 10,                      // these two define number of tetriminos
+        Height: 20                      // across a game board's x and y axis
+    },
+    Tetrimino: { 
+        Length: 25                      // how many pixel a tetrimino takes
+    },
+    TextStyle: new TextStyle({          // this style will be used to draw everything in-game
+        fontFamily: 'armada',           // score, held texture, etc.
+        fontSize: 18,
+        fill: COLORS.White,
+    }),
+};
 
 const canvas = document.getElementById("canvas");
 const app = new Application({
@@ -34,16 +51,6 @@ const app = new Application({
     antialias: true,
     view: canvas,
 });
-
-const GAME = {
-    Board: { Width: 10, Height: 20 },
-    Tetrimino: { Length: 25 },
-    TextStyle: new TextStyle({
-        fontFamily: 'armada',
-        fontSize: 18,
-        fill: COLORS.White,
-    }),
-};
 
 loader.add("tileset.png")
       .add("tileset.json")
