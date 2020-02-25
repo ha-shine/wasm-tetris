@@ -1,4 +1,5 @@
-import("../pkg/index.js").catch(console.error);
+import { Game } from "../pkg/index";
+import { memory } from "../pkg/index_bg";
 
 // aliases for Pixi's classes
 const Application = PIXI.Application;
@@ -51,6 +52,7 @@ const app = new Application({
     antialias: true,
     view: canvas,
 });
+const game = Game.new(GAME.Board.Width, GAME.Board.Height);
 
 loader.add("tileset.png")
       .add("tileset.json")
@@ -60,7 +62,7 @@ function setup(app) {
     drawMainGrid(app);
     drawScore(app);
     drawHeld(app);
-    drawNext(app);
+    drawNext(app, game);
     drawControl(app);
     drawLoop(app);
 }
@@ -116,13 +118,21 @@ function drawHeld(app) {
     app.stage.addChild(label);
 }
 
-function drawNext(app) {
+function drawNext(app, game) {
     let label = new Text("NEXT", GAME.TextStyle);
     label.x = 555;
     label.y = 53;
     app.stage.addChild(label);
 
-    // TODO: Draw next boxes
+    const nextPiecesPtr = game.next_pieces();
+    const nextPieces = new Uint8Array(memory.buffer, nextPiecesPtr, GAME.Board.Width, GAME.Board.Height);
+    for (let i=0; i<3; i++) {
+        let sprite = getSmallTetriminoSprite(nextPieces[i]);
+        sprite.x = 560;
+        sprite.y = 91 + i*80;
+
+        app.stage.addChild(sprite);
+    }
 }
 
 function drawControl(app) {
@@ -151,4 +161,18 @@ function drawControl(app) {
         s.y = y;
         app.stage.addChild(s);
     })
+}
+
+// methods for drawing tetriminos
+// I = 0,
+// O = 1,
+// T = 2,
+// S = 3,
+// Z = 4,
+// J = 5,
+// L = 6
+function getSmallTetriminoSprite(type) {
+    const id = loader.resources["tileset.json"].textures;
+    let sprite = new Sprite(id[`t_${type}_small.png`]);
+    return sprite;
 }
