@@ -8,7 +8,8 @@
     "test": "cargo test && wasm-pack test --headless"
   },
   "dependencies": {
-    "pixi.js": "^5.2.1"
+    "pixi.js": "^5.2.1",
+    "webfontloader": "^1.6.28"
   },
   "devDependencies": {
     "@wasm-tool/wasm-pack-plugin": "^0.4.2",

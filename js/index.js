@@ -1,6 +1,13 @@
 import { Game } from "../pkg/index";
 import { memory } from "../pkg/index_bg";
+import * as WebFont from "webfontloader";
 import * as Pixi from "pixi.js";
+
+WebFont.load({
+    custom: {
+        families: ["armada", "neue-kabel"]
+    }
+});
 
 // aliases for Pixi's classes
 const Application = Pixi.Application;
@@ -57,7 +64,9 @@ const game = Game.new(GAME.Board.Width, GAME.Board.Height);
 
 loader.add("tileset.png")
       .add("tileset.json")
+      .add("https://use.typekit.net/uwv5rqv.css")
       .load(() => setup(app));
+
 
 function setup(app) {
     drawMainGrid(app);
