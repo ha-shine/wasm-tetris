@@ -1,7 +1,9 @@
 mod utils;
+pub mod tetrimino;
 
 use wasm_bindgen::prelude::*;
-use web_sys::console;
+
+pub use tetrimino::*;
 
 
 // When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
@@ -21,25 +23,13 @@ pub fn main_js() -> Result<(), JsValue> {
     #[cfg(debug_assertions)]
     console_error_panic_hook::set_once();
 
-
-    // Your code goes here!
-    console::log_1(&JsValue::from_str("Hello world!"));
-
     Ok(())
 }
 
-#[wasm_bindgen]
-#[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Color {
-    None = 0,
-    Cyan = 1,
-    Yellow = 2,
-    Purple = 3,
-    Green = 4,
-    Red = 5,
-    Blue = 6,
-    Orange = 7
+struct ActivePiece {
+    piece: Tetrimino,
+    x: isize,
+    y: isize,
 }
 
 #[wasm_bindgen]
@@ -52,24 +42,35 @@ pub struct Game {
     // next_pieces will always contain three pieces according to the ui
     generator: SevenGenerator,
     next_pieces: Vec<PieceType>,
+
+    // current playing piece and it's x, y coordinate
+    // x, y coordinate is isize because the pieces can go out of bound
+    active_piece: ActivePiece,
 }
 
 #[wasm_bindgen]
 impl Game {
 
     pub fn new(width: usize, height: usize) -> Game {
-        let mut next_pieces = Vec::new();
         let mut generator = SevenGenerator::new();
+        let mut next_pieces = Vec::new();
         next_pieces.push(generator.next().unwrap());
         next_pieces.push(generator.next().unwrap());
         next_pieces.push(generator.next().unwrap());
+
+        let active_piece = ActivePiece {
+            piece: Tetrimino::from(generator.next().unwrap()),
+            x: 0,
+            y: 0,
+        };
 
         Game {
             width,
             height,
             board: vec![Color::None; width*height],
             generator,
-            next_pieces
+            next_pieces,
+            active_piece
         }
     }
 
@@ -132,17 +133,4 @@ impl Iterator for SevenGenerator {
         self.index += 1;
         Some(result)
     }
-}
-
-#[wasm_bindgen]
-#[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum PieceType {
-    I = 0,
-    O = 1,
-    T = 2,
-    S = 3,
-    Z = 4,
-    J = 5,
-    L = 6
 }

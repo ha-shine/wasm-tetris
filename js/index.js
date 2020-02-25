@@ -1,16 +1,17 @@
 import { Game } from "../pkg/index";
 import { memory } from "../pkg/index_bg";
+import * as Pixi from "pixi.js";
 
 // aliases for Pixi's classes
-const Application = PIXI.Application;
-const Graphics = PIXI.Graphics;
-const Text = PIXI.Text;
-const TextStyle = PIXI.TextStyle;
-const Sprite = PIXI.Sprite;
-const Rectangle = PIXI.Rectangle;
-const TextureCache = PIXI.utils.TextureCache;
+const Application = Pixi.Application;
+const Graphics = Pixi.Graphics;
+const Text = Pixi.Text;
+const TextStyle = Pixi.TextStyle;
+const Sprite = Pixi.Sprite;
+const Rectangle = Pixi.Rectangle;
+const TextureCache = Pixi.utils.TextureCache;
 
-const loader = PIXI.Loader.shared;
+const loader = Pixi.Loader.shared;
 
 // declare some constants
 const COLORS = {
@@ -164,13 +165,6 @@ function drawControl(app) {
 }
 
 // methods for drawing tetriminos
-// I = 0,
-// O = 1,
-// T = 2,
-// S = 3,
-// Z = 4,
-// J = 5,
-// L = 6
 function getSmallTetriminoSprite(type) {
     const id = loader.resources["tileset.json"].textures;
     let sprite = new Sprite(id[`t_${type}_small.png`]);

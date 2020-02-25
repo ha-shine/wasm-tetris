@@ -7,6 +7,9 @@
     "start": "rimraf dist pkg && webpack-dev-server --open -d",
     "test": "cargo test && wasm-pack test --headless"
   },
+  "dependencies": {
+    "pixi.js": "^5.2.1"
+  },
   "devDependencies": {
     "@wasm-tool/wasm-pack-plugin": "^0.4.2",
     "copy-webpack-plugin": "^5.0.3",
