@@ -74,6 +74,35 @@ function setup(app) {
     drawHeld(app);
     drawNext(app, game);
     drawControl(app);
+
+    window.addEventListener("keydown", function(event) {
+        switch (event.key) {
+
+            case "ArrowLeft":
+                event.preventDefault();
+                game.move_left();
+                drawActivePiece(app);
+                drawGround(app);
+                return;
+            case "ArrowRight":
+                event.preventDefault();
+                game.move_right();
+                drawActivePiece(app);
+                drawGround(app);
+                return;
+
+            case "ArrowDown":
+                event.preventDefault();
+                game.move_down();
+                drawActivePiece(app);
+                drawGround(app);
+                return;
+
+            default: return;
+
+        }
+    });
+
     startDrawLoop(app);
 }
 
@@ -86,7 +115,9 @@ function startDrawLoop(app) {
         game.update(BigInt(Math.floor(ticker.elapsedMS * 1000)));
         drawActivePiece(app);
         drawGround(app);
+        drawNext(app, game);
     });
+
     ticker.start();
 }
 
@@ -207,7 +238,11 @@ function drawHeld(app) {
     app.stage.addChild(label);
 }
 
+let nextPiecesSprites = [];
 function drawNext(app, game) {
+    nextPiecesSprites.forEach(piece => app.stage.removeChild(piece));
+    nextPiecesSprites = [];
+
     let label = new Text("NEXT", GAME.TextStyle);
     label.x = 555;
     label.y = 53;
@@ -221,6 +256,7 @@ function drawNext(app, game) {
         sprite.y = 91 + i*80;
 
         app.stage.addChild(sprite);
+        nextPiecesSprites.push(sprite);
     }
 }
 

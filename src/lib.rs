@@ -139,6 +139,27 @@ impl Game {
         //       because user may try to move the piece to some opened holes
         self.try_fuse_active_piece();
     }
+
+    pub fn move_left(&mut self) {
+        if self.can_move_active_piece(-1, 0) {
+            self.active_piece.x -= 1;
+            self.update_active_piece_coords();
+        }
+    }
+
+    pub fn move_right(&mut self) {
+        if self.can_move_active_piece(1, 0) {
+            self.active_piece.x += 1;
+            self.update_active_piece_coords();
+        }
+    }
+
+    pub fn move_down(&mut self) {
+        if self.can_move_active_piece(0, 1) {
+            self.active_piece.y += 1;
+            self.try_fuse_active_piece();
+        }
+    }
 }
 
 impl Game {
@@ -225,6 +246,31 @@ impl Game {
                 }
             }
         }
+    }
+
+    fn can_move_active_piece(&mut self, x: isize, y: isize) -> bool {
+        // potential x and y
+        let block = self.active_piece.piece.block();
+        let pot_x = self.active_piece.x + x;
+        let pot_y = self.active_piece.y + y;
+
+        for block_y in 0..4 {
+            for block_x in 0..4 {
+                if block[block_y * 4 + block_x] == 1 {
+                    let board_x = pot_x + block_x as isize;
+                    let board_y = pot_y + block_y as isize;
+
+                    if board_x < 0
+                        || board_y < 0
+                        || board_x == self.width as isize
+                        || board_y == self.height as isize {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        true
     }
 
     // apply displacements to move the next active tetrimino into the center of board
