@@ -17,6 +17,7 @@ const TextStyle = Pixi.TextStyle;
 const Sprite = Pixi.Sprite;
 const Rectangle = Pixi.Rectangle;
 const TextureCache = Pixi.utils.TextureCache;
+const Ticker = Pixi.Ticker;
 
 const loader = Pixi.Loader.shared;
 
@@ -73,14 +74,28 @@ function setup(app) {
     drawHeld(app);
     drawNext(app, game);
     drawControl(app);
-    drawLoop(app);
+    startDrawLoop(app);
 }
 
-function drawLoop(app) {
+function startDrawLoop(app) {
     drawActivePiece(app);
+
+    const ticker = new Ticker();
+
+    ticker.add(() => {
+        game.update(BigInt(Math.floor(ticker.elapsedMS * 1000)));
+        drawActivePiece(app);
+        drawGround(app);
+    });
+    ticker.start();
 }
 
+let activePieces = [];
 function drawActivePiece(app) {
+    // clear the existing active pieces first
+    activePieces.forEach((piece) => app.stage.removeChild(piece));
+    activePieces = [];
+
     const color = colorOfEnum(game.active_piece_color());
     const idxPtr = game.active_piece_coords();
     const idxes = new Uint8Array(memory.buffer, idxPtr, 4);
@@ -102,7 +117,45 @@ function drawActivePiece(app) {
         rectangle.endFill();
         rectangle.x = boardX + (x * GAME.Tetrimino.Length);
         rectangle.y = boardY + (y * GAME.Tetrimino.Length);
+
+        activePieces.push(rectangle);
         app.stage.addChild(rectangle);
+    }
+}
+
+let groundPieces = [];
+function drawGround(app) {
+    groundPieces.forEach((piece) => app.stage.removeChild(piece));
+    groundPieces = [];
+
+    const boardPtr = game.board();
+    const board = new Uint8Array(memory.buffer, boardPtr, GAME.Board.Width * GAME.Board.Height);
+
+    const boardWidth = GAME.Tetrimino.Length * GAME.Board.Width;
+    const boardHeight = GAME.Tetrimino.Length * GAME.Board.Height;
+
+    const boardX = WIDTH/2 - boardWidth/2;
+    const boardY = HEIGHT/2 - boardHeight/2;
+
+    for (let y = 0; y<GAME.Board.Height; y++) {
+        for (let x = 0; x<GAME.Board.Width; x++) {
+            let i = (y * GAME.Board.Width) + x;
+            if (board[i] !== 0) {
+                let color = colorOfEnum(board[i]);
+
+                // TODO: replace with rectangle sprite, and might have to hold onto the pieces to delete later
+                const rectangle = new Graphics();
+                rectangle.lineStyle(1, COLORS.White, 1);
+                rectangle.beginFill(color);
+                rectangle.drawRect(0, 0, 25, 25);
+                rectangle.endFill();
+                rectangle.x = boardX + (x * GAME.Tetrimino.Length);
+                rectangle.y = boardY + (y * GAME.Tetrimino.Length);
+
+                groundPieces.push(rectangle);
+                app.stage.addChild(rectangle);
+            }
+        }
     }
 }
 

@@ -135,6 +135,8 @@ impl Game {
             self.update_active_piece_coords();
         }
 
+        // TODO: may be try fusing active piece only on the next turn?
+        //       because user may try to move the piece to some opened holes
         self.try_fuse_active_piece();
     }
 }
@@ -187,10 +189,17 @@ impl Game {
         for y in 0..4 {
             for x in 0..4 {
                 if block[y * 4 + x] == 1 {
-                    // check the next row current col if there's any occupied piece
-                    let check_y = piece_y + y as isize;
-                    let check_x = piece_x + x as isize;
-                    let idx = self.get_index(check_y as usize, check_x as usize);
+                    // check the next row, current col if there's any occupied piece
+                    let check_y = piece_y + y as isize; // coord y on the board
+                    let check_x = piece_x + x as isize; // coord x
+
+                    // is the current piece on the last row of the board?
+                    if check_y == self.height as isize - 1 {
+                        return true;
+                    }
+
+                    // is the next row not empty?
+                    let idx = self.get_index(check_y as usize + 1, check_x as usize);
                     if *self.board.get(idx).unwrap() != Color::None {
                         return true;
                     }
