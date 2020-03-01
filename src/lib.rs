@@ -32,6 +32,15 @@ enum State {
     Lost,
 }
 
+enum Event {
+    MoveLeft,
+    MoveRight,
+    MoveDown,
+    RotateCW,
+    RotateCCW,
+    Fall,
+}
+
 struct ActivePiece {
     piece: Tetrimino,
     x: isize,
@@ -76,6 +85,8 @@ pub struct Game {
     // have to do this way because there is no other good way to pass a vector
     // without incurring performance cost for serializing into js
     active_piece_indexes: Vec<u8>,
+
+    events: Vec<Event>,
 }
 
 #[wasm_bindgen]
@@ -103,6 +114,7 @@ impl Game {
             fall_rate: Duration::from_millis(500), // TODO: this should update
             clearable_lines: Vec::new(),
             active_piece_indexes: Vec::new(),
+            events: Vec::new()
         };
         game.update_active_piece_coords();
 
@@ -129,36 +141,51 @@ impl Game {
         let elapsed = Duration::from_micros(elapsed);
         self.elapsed += elapsed;
 
+        let mut delta_x = 0;
+        let mut delta_y = 0;
+
         if self.elapsed >= self.fall_rate {
+            delta_y = 1;
             self.elapsed -= self.fall_rate;
-            self.active_piece.y += 1;
-            self.update_active_piece_coords();
+        }
+
+        for event in &self.events {
+            match event {
+                Event::MoveLeft => delta_x = -1,
+                Event::MoveRight => delta_x = 1,
+                Event::MoveDown => delta_y = 1,
+                Event::RotateCW => (),
+                Event::RotateCCW => (),
+                Event::Fall => (),
+            }
+        }
+        self.events.clear();
+
+        // TODO: seems like filling the hole in the middle works intermittently only :(
+        if self.can_move_active_piece(delta_x, 0) {
+            self.active_piece.x += delta_x;
+        }
+
+        if self.can_move_active_piece(0, delta_y) {
+            self.active_piece.y += delta_y;
         }
 
         // TODO: may be try fusing active piece only on the next turn?
         //       because user may try to move the piece to some opened holes
         self.try_fuse_active_piece();
+        self.update_active_piece_coords();
     }
 
     pub fn move_left(&mut self) {
-        if self.can_move_active_piece(-1, 0) {
-            self.active_piece.x -= 1;
-            self.update_active_piece_coords();
-        }
+        self.events.push(Event::MoveLeft);
     }
 
     pub fn move_right(&mut self) {
-        if self.can_move_active_piece(1, 0) {
-            self.active_piece.x += 1;
-            self.update_active_piece_coords();
-        }
+        self.events.push(Event::MoveRight);
     }
 
     pub fn move_down(&mut self) {
-        if self.can_move_active_piece(0, 1) {
-            self.active_piece.y += 1;
-            self.try_fuse_active_piece();
-        }
+        self.events.push(Event::MoveDown);
     }
 }
 
@@ -200,7 +227,6 @@ impl Game {
         self.next_pieces[0] = self.next_pieces[1];
         self.next_pieces[1] = self.next_pieces[2];
         self.next_pieces[2] = self.generator.next().unwrap();
-        self.update_active_piece_coords();
     }
 
     fn can_fuse_active_piece(&self, block: &'static Block) -> bool {
@@ -264,6 +290,11 @@ impl Game {
                         || board_y < 0
                         || board_x == self.width as isize
                         || board_y == self.height as isize {
+                        return false;
+                    }
+
+                    let idx = self.get_index(board_y as usize, board_x as usize);
+                    if self.board[idx] != Color::None {
                         return false;
                     }
                 }
