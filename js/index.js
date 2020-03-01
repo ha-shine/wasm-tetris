@@ -64,7 +64,6 @@ const game = Game.new(GAME.Board.Width, GAME.Board.Height);
 
 loader.add("tileset.png")
       .add("tileset.json")
-      .add("https://use.typekit.net/uwv5rqv.css")
       .load(() => setup(app));
 
 
@@ -78,6 +77,33 @@ function setup(app) {
 }
 
 function drawLoop(app) {
+    drawActivePiece(app);
+}
+
+function drawActivePiece(app) {
+    const color = colorOfEnum(game.active_piece_color());
+    const idxPtr = game.active_piece_coords();
+    const idxes = new Uint8Array(memory.buffer, idxPtr, 4);
+
+    const boardWidth = GAME.Tetrimino.Length * GAME.Board.Width;
+    const boardHeight = GAME.Tetrimino.Length * GAME.Board.Height;
+    const boardX = WIDTH/2 - boardWidth/2;
+    const boardY = HEIGHT/2 - boardHeight/2;
+
+    for (let i=0; i<4; i++) {
+        let x = idxes[i] % GAME.Board.Width;
+        let y = Math.floor(idxes[i] / GAME.Board.Width);
+
+        // TODO: replace with rectangle sprite, and might have to hold onto the pieces to delete later
+        const rectangle = new Graphics();
+        rectangle.lineStyle(1, COLORS.White, 1);
+        rectangle.beginFill(color);
+        rectangle.drawRect(0, 0, 25, 25);
+        rectangle.endFill();
+        rectangle.x = boardX + (x * GAME.Tetrimino.Length);
+        rectangle.y = boardY + (y * GAME.Tetrimino.Length);
+        app.stage.addChild(rectangle);
+    }
 }
 
 function drawMainGrid(app) {
@@ -135,7 +161,7 @@ function drawNext(app, game) {
     app.stage.addChild(label);
 
     const nextPiecesPtr = game.next_pieces();
-    const nextPieces = new Uint8Array(memory.buffer, nextPiecesPtr, GAME.Board.Width, GAME.Board.Height);
+    const nextPieces = new Uint8Array(memory.buffer, nextPiecesPtr, 3);
     for (let i=0; i<3; i++) {
         let sprite = getSmallTetriminoSprite(nextPieces[i]);
         sprite.x = 560;
@@ -178,4 +204,17 @@ function getSmallTetriminoSprite(type) {
     const id = loader.resources["tileset.json"].textures;
     let sprite = new Sprite(id[`t_${type}_small.png`]);
     return sprite;
+}
+
+function colorOfEnum(color) {
+    switch (color) {
+        case 1: return COLORS.Cyan;
+        case 2: return COLORS.Yellow;
+        case 3: return COLORS.Purple;
+        case 4: return COLORS.Green;
+        case 5: return COLORS.Red;
+        case 6: return COLORS.Blue;
+        case 7: return COLORS.Orange;
+        default: return COLORS.MainBgColor;
+    }
 }

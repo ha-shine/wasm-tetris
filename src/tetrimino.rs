@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::*;
 
-type Block = [u8; 16];
+pub type Block = [u8; 16];
 
 const BLOCK_I: [Block; 4] = [
     [

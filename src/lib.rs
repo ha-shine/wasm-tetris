@@ -1,11 +1,11 @@
-mod utils;
-pub mod tetrimino;
+use std::time::Duration;
 
 use wasm_bindgen::prelude::*;
 
 pub use tetrimino::*;
-use std::time::Duration;
 
+mod utils;
+pub mod tetrimino;
 
 // When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
 // allocator.
@@ -71,10 +71,11 @@ pub struct Game {
     // indexes of lines which can be cleared/erased
     clearable_lines: Vec<u8>,
 
-    // vector to hold pairs of x,y coordinates for current active piece's individual squares
+    // vector to hold pairs of x,y coordinates in the form of index
+    // for current active piece's individual squares
     // have to do this way because there is no other good way to pass a vector
     // without incurring performance cost for serializing into js
-    active_piece_coords: Vec<usize>,
+    active_piece_indexes: Vec<u8>,
 }
 
 #[wasm_bindgen]
@@ -88,7 +89,7 @@ impl Game {
 
         let active_piece = Self::initialize_tetrimino(generator.next().unwrap());
 
-        Game {
+        let mut game = Game {
             width,
             height,
             board: vec![Color::None; width * height],
@@ -101,8 +102,11 @@ impl Game {
             elapsed: Duration::from_micros(0),
             fall_rate: Duration::from_millis(500), // TODO: this should update
             clearable_lines: Vec::new(),
-            active_piece_coords: Vec::new(),
-        }
+            active_piece_indexes: Vec::new(),
+        };
+        game.update_active_piece_coords();
+
+        game
     }
 
     pub fn board(&self) -> *const Color {
@@ -113,8 +117,12 @@ impl Game {
         self.next_pieces.as_ptr()
     }
 
-    pub fn active_piece(&self) -> *const u8 {
-        unimplemented!()
+    pub fn active_piece_coords(&self) -> *const u8 {
+        self.active_piece_indexes.as_ptr()
+    }
+
+    pub fn active_piece_color(&self) -> Color {
+        self.active_piece.piece.color()
     }
 
     pub fn update(&mut self, elapsed: u64) {
@@ -124,6 +132,89 @@ impl Game {
         if self.elapsed >= self.fall_rate {
             self.elapsed -= self.fall_rate;
             self.active_piece.y += 1;
+            self.update_active_piece_coords();
+        }
+
+        self.try_fuse_active_piece();
+    }
+}
+
+impl Game {
+    fn get_index(&self, row: usize, col: usize) -> usize {
+        (row * self.width) + col
+    }
+
+    fn update_active_piece_coords(&mut self) {
+        self.active_piece_indexes.clear();
+
+        let block = self.active_piece.piece.block();
+        let piece_x = self.active_piece.x;
+        let piece_y = self.active_piece.y;
+
+        for y in 0..4 {
+            for x in 0..4 {
+                if block[y * 4 + x] == 1 {
+                    let x = piece_x + x as isize;
+                    let y = piece_y + y as isize;
+                    let idx = self.get_index(y as usize, x as usize);
+                    self.active_piece_indexes.push(idx as u8);
+                }
+            }
+        }
+    }
+
+    // try fusing current active piece with the ground
+    // return true if the active piece has successfully fused with the ground
+    fn try_fuse_active_piece(&mut self) {
+        let block = self.active_piece.piece.block();
+
+        if !self.can_fuse_active_piece(block) {
+            return;
+        }
+
+        self.fuse_active_piece(block);
+        self.active_piece = Self::initialize_tetrimino(self.next_pieces[0]);
+        self.next_pieces[0] = self.next_pieces[1];
+        self.next_pieces[1] = self.next_pieces[2];
+        self.next_pieces[2] = self.generator.next().unwrap();
+        self.update_active_piece_coords();
+    }
+
+    fn can_fuse_active_piece(&self, block: &'static Block) -> bool {
+        let piece_x = self.active_piece.x;
+        let piece_y = self.active_piece.y;
+
+        for y in 0..4 {
+            for x in 0..4 {
+                if block[y * 4 + x] == 1 {
+                    // check the next row current col if there's any occupied piece
+                    let check_y = piece_y + y as isize;
+                    let check_x = piece_x + x as isize;
+                    let idx = self.get_index(check_y as usize, check_x as usize);
+                    if *self.board.get(idx).unwrap() != Color::None {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        false
+    }
+
+    fn fuse_active_piece(&mut self, block: &'static Block) {
+        let color = self.active_piece.piece.color();
+        let piece_x = self.active_piece.x;
+        let piece_y = self.active_piece.y;
+
+        for y in 0..4 {
+            for x in 0..4 {
+                if block[y * 4 + x] == 1 {
+                    let x = piece_x + x as isize;
+                    let y = piece_y + y as isize;
+                    let idx = self.get_index(y as usize, x as usize);
+                    self.board[idx] = color;
+                }
+            }
         }
     }
 
@@ -141,12 +232,6 @@ impl Game {
         };
 
         current_tetrimino
-    }
-}
-
-impl Game {
-    fn get_index(&self, row: usize, col: usize) -> usize {
-        (row * self.width) + col
     }
 }
 
