@@ -118,7 +118,6 @@ function drawActivePiece(app) {
     activePieces.forEach((piece) => app.stage.removeChild(piece));
     activePieces = [];
 
-    const color = colorOfEnum(game.active_piece_color());
     const idxPtr = game.active_piece_coords();
     const idxes = new Uint8Array(memory.buffer, idxPtr, 4);
 
@@ -176,30 +175,30 @@ function drawMainGrid(app) {
     const boardHeight = GAME.Tetrimino.Length * GAME.Board.Height;
 
     rectangle.lineStyle(1, COLORS.White, 1);
-    rectangle.drawRect(0, 0, boardWidth, boardHeight);
-    rectangle.x = WIDTH/2 - boardWidth/2;
-    rectangle.y = HEIGHT/2 - boardHeight/2;
+    rectangle.drawRect(0, 0, boardWidth + 4, boardHeight + 4);
+    rectangle.x = WIDTH/2 - boardWidth/2 - 2;
+    rectangle.y = HEIGHT/2 - boardHeight/2 - 2;
     app.stage.addChild(rectangle);
 
     // vertical lines
-    for (let i=1; i<=GAME.Board.Width; i++) {
+    for (let i=1; i<GAME.Board.Width; i++) {
         let line = new Graphics();
         line.lineStyle(1, COLORS.White, 0.1);
         line.moveTo(0, 0);
-        line.lineTo(0, boardHeight);
-        line.x = rectangle.x + (i*GAME.Tetrimino.Length);
+        line.lineTo(0, boardHeight + 4);
+        line.x = rectangle.x + (i*GAME.Tetrimino.Length) + 2;
         line.y = rectangle.y;
         app.stage.addChild(line);
     }
     
     // horizontal lines
-    for (let i=1; i<=GAME.Board.Height; i++) {
+    for (let i=1; i<GAME.Board.Height; i++) {
         let line = new Graphics();
         line.lineStyle(1, COLORS.White, 0.1);
         line.moveTo(0, 0);
-        line.lineTo(boardWidth, 0);
+        line.lineTo(boardWidth + 4, 0);
         line.x = rectangle.x;
-        line.y = rectangle.y + (i*GAME.Tetrimino.Length);
+        line.y = rectangle.y + (i*GAME.Tetrimino.Length) + 2;
         app.stage.addChild(line);
     }
 }
@@ -277,7 +276,7 @@ function drawControl(app) {
     let boardHeight = GAME.Tetrimino.Length * GAME.Board.Height;
 
     let x = WIDTH/2 - boardWidth/2 - 2;
-    let y = HEIGHT/2 + boardHeight/2 + 8;
+    let y = HEIGHT/2 + boardHeight/2 + 10;
 
     const id = loader.resources["tileset.json"].textures;
     
