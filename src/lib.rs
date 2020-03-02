@@ -3,6 +3,7 @@ use std::time::Duration;
 use wasm_bindgen::prelude::*;
 
 pub use tetrimino::*;
+use std::collections::HashSet;
 
 mod utils;
 pub mod tetrimino;
@@ -32,13 +33,20 @@ enum State {
     Lost,
 }
 
+#[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
+enum Rotation {
+    Clockwise,
+    CounterClockwise,
+}
+
+#[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
 enum Event {
     MoveLeft,
     MoveRight,
     MoveDown,
-    RotateCW,
-    RotateCCW,
+    Rotate(Rotation),
     Fall,
+    Hold,
 }
 
 struct ActivePiece {
@@ -74,7 +82,7 @@ pub struct Game {
     elapsed: Duration,
 
     // fall rate defines how fast a piece fall
-    // if time delta greater than this is elapsed, we move one piece down by one unit
+    // if time delta greater than this is elapsed, I move one piece down by one unit
     fall_rate: Duration,
 
     // indexes of lines which can be cleared/erased
@@ -86,7 +94,9 @@ pub struct Game {
     // without incurring performance cost for serializing into js
     active_piece_indexes: Vec<u8>,
 
-    events: Vec<Event>,
+    // Set to hold all the user events for this update
+    // Set because I only want to process one event of each
+    events: HashSet<Event>,
 }
 
 #[wasm_bindgen]
@@ -114,7 +124,7 @@ impl Game {
             fall_rate: Duration::from_millis(500), // TODO: this should update
             clearable_lines: Vec::new(),
             active_piece_indexes: Vec::new(),
-            events: Vec::new()
+            events: HashSet::new(),
         };
         game.update_active_piece_coords();
 
@@ -141,8 +151,12 @@ impl Game {
         let elapsed = Duration::from_micros(elapsed);
         self.elapsed += elapsed;
 
+        // delta movement across x and y axis, must process these movements separately
+        // limit these movement to 1 on each tick because I want smooth movement animation
         let mut delta_x = 0;
         let mut delta_y = 0;
+
+        let mut rotation = None;
 
         if self.elapsed >= self.fall_rate {
             delta_y = 1;
@@ -151,23 +165,45 @@ impl Game {
 
         for event in &self.events {
             match event {
-                Event::MoveLeft => delta_x = -1,
-                Event::MoveRight => delta_x = 1,
-                Event::MoveDown => delta_y = 1,
-                Event::RotateCW => (),
-                Event::RotateCCW => (),
-                Event::Fall => (),
+                // These movement change delta value independently
+                Event::MoveLeft => delta_x += -1,
+                Event::MoveRight => delta_x += 1,
+
+                // only update if it's 0
+                Event::MoveDown => if delta_y == 0 {
+                    delta_y = 1
+                },
+                Event::Fall => delta_y = self.height,
+
+                Event::Rotate(rot) => rotation = Some(*rot),
+                Event::Hold => (),
             }
         }
         self.events.clear();
 
+        if let Some(rot) = rotation {
+            let new_piece = match rot {
+                Rotation::Clockwise => self.active_piece.piece.rotate_clockwise(),
+                Rotation::CounterClockwise => self.active_piece.piece.rotate_counter_clockwise()
+            };
+            let block = new_piece.block();
+
+            if self.can_fit_block(block, self.active_piece.x, self.active_piece.y) {
+                self.active_piece.piece = new_piece;
+            }
+        }
+
+        let block = self.active_piece.piece.block();
+
         // TODO: seems like filling the hole in the middle works intermittently only :(
-        if self.can_move_active_piece(delta_x, 0) {
+        if self.can_fit_block(block, self.active_piece.x + delta_x, self.active_piece.y) {
             self.active_piece.x += delta_x;
         }
 
-        if self.can_move_active_piece(0, delta_y) {
-            self.active_piece.y += delta_y;
+        for _ in 0..delta_y {
+            if self.can_fit_block(block, self.active_piece.x, self.active_piece.y + 1) {
+                self.active_piece.y += 1;
+            }
         }
 
         // TODO: may be try fusing active piece only on the next turn?
@@ -177,15 +213,31 @@ impl Game {
     }
 
     pub fn move_left(&mut self) {
-        self.events.push(Event::MoveLeft);
+        self.events.insert(Event::MoveLeft);
     }
 
     pub fn move_right(&mut self) {
-        self.events.push(Event::MoveRight);
+        self.events.insert(Event::MoveRight);
     }
 
     pub fn move_down(&mut self) {
-        self.events.push(Event::MoveDown);
+        self.events.insert(Event::MoveDown);
+    }
+
+    pub fn rotate_clockwise(&mut self) {
+        self.events.insert(Event::Rotate(Rotation::Clockwise));
+    }
+
+    pub fn rotate_counter_clockwise(&mut self) {
+        self.events.insert(Event::Rotate(Rotation::CounterClockwise));
+    }
+
+    pub fn fall(&mut self) {
+        self.events.insert(Event::Fall);
+    }
+
+    pub fn hold(&mut self) {
+        self.events.insert(Event::Hold);
     }
 }
 
@@ -274,17 +326,12 @@ impl Game {
         }
     }
 
-    fn can_move_active_piece(&mut self, x: isize, y: isize) -> bool {
-        // potential x and y
-        let block = self.active_piece.piece.block();
-        let pot_x = self.active_piece.x + x;
-        let pot_y = self.active_piece.y + y;
-
+    fn can_fit_block(&self, block: &'static Block, x: isize, y: isize) -> bool {
         for block_y in 0..4 {
             for block_x in 0..4 {
                 if block[block_y * 4 + block_x] == 1 {
-                    let board_x = pot_x + block_x as isize;
-                    let board_y = pot_y + block_y as isize;
+                    let board_x = x + block_x as isize;
+                    let board_y = y + block_y as isize;
 
                     if board_x < 0
                         || board_y < 0

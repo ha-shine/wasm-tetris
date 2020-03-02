@@ -78,29 +78,21 @@ function setup(app) {
     window.addEventListener("keydown", function(event) {
         switch (event.key) {
 
-            case "ArrowLeft":
-                event.preventDefault();
-                game.move_left();
-                drawActivePiece(app);
-                drawGround(app);
-                return;
-            case "ArrowRight":
-                event.preventDefault();
-                game.move_right();
-                drawActivePiece(app);
-                drawGround(app);
-                return;
-
-            case "ArrowDown":
-                event.preventDefault();
-                game.move_down();
-                drawActivePiece(app);
-                drawGround(app);
-                return;
+            case "ArrowLeft":   game.move_left(); break;
+            case "ArrowRight":  game.move_right(); break;
+            case "ArrowDown":   game.move_down(); break;
+            case " ":           game.fall(); break;
+            case "Z":
+            case "z":           game.rotate_counter_clockwise(); break;
+            case "X":
+            case "x":           game.rotate_clockwise(); break;
+            case "C":
+            case "c":           game.hold(); break;
 
             default: return;
-
         }
+
+        event.preventDefault();
     });
 
     startDrawLoop(app);
