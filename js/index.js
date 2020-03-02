@@ -15,8 +15,6 @@ const Graphics = Pixi.Graphics;
 const Text = Pixi.Text;
 const TextStyle = Pixi.TextStyle;
 const Sprite = Pixi.Sprite;
-const Rectangle = Pixi.Rectangle;
-const TextureCache = Pixi.utils.TextureCache;
 const Ticker = Pixi.Ticker;
 
 const loader = Pixi.Loader.shared;
