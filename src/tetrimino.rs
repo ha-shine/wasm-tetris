@@ -2,7 +2,6 @@ use wasm_bindgen::prelude::*;
 
 pub type Block = [u8; 16];
 
-// TODO: Fix to match with next pieces rendering
 const BLOCK_I: [Block; 4] = [
     [
         0, 0, 1, 0,
