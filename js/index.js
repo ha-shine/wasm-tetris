@@ -81,7 +81,7 @@ function setup(app) {
             case "ArrowLeft":   game.move_left(); break;
             case "ArrowRight":  game.move_right(); break;
             case "ArrowDown":   game.move_down(); break;
-            case " ":           game.fall(); break;
+            case " ":           game.drop(); break;
             case "Z":
             case "z":           game.rotate_counter_clockwise(); break;
             case "X":

@@ -45,7 +45,7 @@ enum Event {
     MoveRight,
     MoveDown,
     Rotate(Rotation),
-    Fall,
+    Drop,
     Hold,
 }
 
@@ -173,7 +173,7 @@ impl Game {
                 Event::MoveDown => if delta_y == 0 {
                     delta_y = 1
                 },
-                Event::Fall => delta_y = self.height,
+                Event::Drop => delta_y = self.height,
 
                 Event::Rotate(rot) => rotation = Some(*rot),
                 Event::Hold => (),
@@ -195,20 +195,30 @@ impl Game {
 
         let block = self.active_piece.piece.block();
 
-        // TODO: seems like filling the hole in the middle works intermittently only :(
-        if self.can_fit_block(block, self.active_piece.x + delta_x, self.active_piece.y) {
+        if delta_x != 0 && self.can_fit_block(block, self.active_piece.x + delta_x, self.active_piece.y) {
             self.active_piece.x += delta_x;
         }
 
-        for _ in 0..delta_y {
+        if delta_y > 1 {
+            // the player dropped the active piece, move the active piece until it hit the ground
+            for _ in 0..delta_y {
+                if self.can_fit_block(block, self.active_piece.x, self.active_piece.y + 1) {
+                    self.active_piece.y += 1;
+                }
+            }
+            self.try_fuse_active_piece();
+        } else if delta_y == 1 {
+            // fusing and dropping are considered two separate fall events
+            // to allow player to move the pieces into the gaps in the middle of the board
+            // if the block can drop one more line it must mean the piece wasn't touching the ground
+            // else the piece is touching the ground on the previous tick, and we merge it now
             if self.can_fit_block(block, self.active_piece.x, self.active_piece.y + 1) {
                 self.active_piece.y += 1;
+            } else {
+                self.try_fuse_active_piece();
             }
         }
 
-        // TODO: may be try fusing active piece only on the next turn?
-        //       because user may try to move the piece to some opened holes
-        self.try_fuse_active_piece();
         self.update_active_piece_coords();
     }
 
@@ -232,8 +242,8 @@ impl Game {
         self.events.insert(Event::Rotate(Rotation::CounterClockwise));
     }
 
-    pub fn fall(&mut self) {
-        self.events.insert(Event::Fall);
+    pub fn drop(&mut self) {
+        self.events.insert(Event::Drop);
     }
 
     pub fn hold(&mut self) {
