@@ -307,7 +307,8 @@ impl Game {
     // apply displacements to move the next active tetrimino into the center of board
     fn initialize_tetrimino(ttype: PieceType) -> ActivePiece {
         let (x, y) = match ttype {
-            PieceType::I => (3, -1),
+            PieceType::T => (3, -1),
+            PieceType::J => (4, 0),
             _ => (3, 0)
         };
 
