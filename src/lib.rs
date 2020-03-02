@@ -211,7 +211,7 @@ impl Game {
             // fusing and dropping are considered two separate fall events
             // to allow player to move the pieces into the gaps in the middle of the board
             // if the block can drop one more line it must mean the piece wasn't touching the ground
-            // else the piece is touching the ground on the previous tick, and we merge it now
+            // else the piece was touching the ground on the previous tick, and should be merged
             if self.can_fit_block(block, self.active_piece.x, self.active_piece.y + 1) {
                 self.active_piece.y += 1;
             } else {
