@@ -94,6 +94,9 @@ pub struct Game {
     // without incurring performance cost for serializing into js
     active_piece_indexes: Vec<u8>,
 
+    // similar vector of x,y coordinates to draw the hint on the ground
+    ground_hint_indexes: Vec<u8>,
+
     // Set to hold all the user events for this update
     // Set because I only want to process one event of each
     events: HashSet<Event>,
@@ -124,6 +127,7 @@ impl Game {
             fall_rate: Duration::from_millis(500), // TODO: this should update
             clearable_lines: Vec::new(),
             active_piece_indexes: Vec::new(),
+            ground_hint_indexes: Vec::new(),
             events: HashSet::new(),
         };
         game.update_active_piece_coords();
@@ -141,6 +145,10 @@ impl Game {
 
     pub fn active_piece_coords(&self) -> *const u8 {
         self.active_piece_indexes.as_ptr()
+    }
+
+    pub fn ground_hint_coords(&self) -> *const u8 {
+        self.ground_hint_indexes.as_ptr()
     }
 
     pub fn active_piece_color(&self) -> Color {
@@ -238,6 +246,7 @@ impl Game {
         }
 
         self.update_active_piece_coords();
+        self.update_ground_hint_coords();
     }
 
     pub fn move_left(&mut self) {
@@ -295,6 +304,30 @@ impl Game {
                     let y = piece_y + y as isize;
                     let idx = self.get_index(y as usize, x as usize);
                     self.active_piece_indexes.push(idx as u8);
+                }
+            }
+        }
+    }
+
+    fn update_ground_hint_coords(&mut self) {
+        self.ground_hint_indexes.clear();
+
+        let block = self.active_piece.piece.block();
+        let block_x = self.active_piece.x;
+        let mut block_y = self.active_piece.y;
+
+        while self.can_fit_block(block, block_x, block_y) {
+            block_y += 1;
+        }
+        block_y -= 1;
+
+        for y in 0..4 {
+            for x in 0..4 {
+                if block[y * 4 + x] == 1 {
+                    let x = block_x + x as isize;
+                    let y = block_y + y as isize;
+                    let idx = self.get_index(y as usize, x as usize);
+                    self.ground_hint_indexes.push(idx as u8);
                 }
             }
         }

@@ -105,6 +105,7 @@ function startDrawLoop(app) {
         game.update(BigInt(Math.floor(ticker.elapsedMS * 1000)));
         drawActivePiece(app);
         drawGround(app);
+        drawGroundHint(app);
         drawNextPieces(app);
         drawHeldPiece(app);
     });
@@ -132,6 +133,7 @@ function drawActivePiece(app) {
 
         const color = game.active_piece_color();
         const sprite = getSmallSquareSprite(color);
+
         sprite.x = boardX + (x * GAME.Tetrimino.Length);
         sprite.y = boardY + (y * GAME.Tetrimino.Length);
 
@@ -166,6 +168,39 @@ function drawGround(app) {
                 app.stage.addChild(sprite);
             }
         }
+    }
+}
+
+let groundHintSquares = [];
+function drawGroundHint(app) {
+    groundHintSquares.forEach((piece) => app.stage.removeChild(piece));
+    groundHintSquares = [];
+
+    const groundHintPtr = game.ground_hint_coords();
+    const groundHint = new Uint8Array(memory.buffer, groundHintPtr, 4);
+
+    const boardWidth = GAME.Tetrimino.Length * GAME.Board.Width;
+    const boardHeight = GAME.Tetrimino.Length * GAME.Board.Height;
+
+    const boardX = WIDTH/2 - boardWidth/2;
+    const boardY = HEIGHT/2 - boardHeight/2;
+
+    let color = colorOfEnum(game.active_piece_color());
+
+    for (let i=0; i<4; i++) {
+        let x = groundHint[i] % GAME.Board.Width;
+        let y = Math.floor(groundHint[i] / GAME.Board.Width);
+
+        const rectangle = new Graphics();
+        rectangle.lineStyle(0, COLORS.White, 0.5);
+        rectangle.beginFill(color);
+        rectangle.drawRect(0, 0, 25, 25);
+        rectangle.endFill();
+        rectangle.x = boardX + (x * GAME.Tetrimino.Length);
+        rectangle.y = boardY + (y * GAME.Tetrimino.Length);
+
+        groundHintSquares.push(rectangle);
+        app.stage.addChild(rectangle);
     }
 }
 
