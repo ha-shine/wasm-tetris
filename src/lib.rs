@@ -166,7 +166,7 @@ impl Game {
         for event in &self.events {
             match event {
                 // These movement change delta value independently
-                Event::MoveLeft => delta_x += -1,
+                Event::MoveLeft => delta_x -= 1,
                 Event::MoveRight => delta_x += 1,
 
                 // only update if it's 0
