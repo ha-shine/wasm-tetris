@@ -131,17 +131,13 @@ function drawActivePiece(app) {
         let x = idxes[i] % GAME.Board.Width;
         let y = Math.floor(idxes[i] / GAME.Board.Width);
 
-        // TODO: replace with rectangle sprite, and might have to hold onto the pieces to delete later
-        const rectangle = new Graphics();
-        rectangle.lineStyle(1, COLORS.White, 1);
-        rectangle.beginFill(color);
-        rectangle.drawRect(0, 0, 25, 25);
-        rectangle.endFill();
-        rectangle.x = boardX + (x * GAME.Tetrimino.Length);
-        rectangle.y = boardY + (y * GAME.Tetrimino.Length);
+        const color = game.active_piece_color();
+        const sprite = getSmallSquareSprite(color);
+        sprite.x = boardX + (x * GAME.Tetrimino.Length);
+        sprite.y = boardY + (y * GAME.Tetrimino.Length);
 
-        activePieces.push(rectangle);
-        app.stage.addChild(rectangle);
+        activePieces.push(sprite);
+        app.stage.addChild(sprite);
     }
 }
 
@@ -163,19 +159,12 @@ function drawGround(app) {
         for (let x = 0; x<GAME.Board.Width; x++) {
             let i = (y * GAME.Board.Width) + x;
             if (board[i] !== 0) {
-                let color = colorOfEnum(board[i]);
+                const sprite = getSmallSquareSprite(board[i]);
+                sprite.x = boardX + (x * GAME.Tetrimino.Length);
+                sprite.y = boardY + (y * GAME.Tetrimino.Length);
 
-                // TODO: replace with rectangle sprite, and might have to hold onto the pieces to delete later
-                const rectangle = new Graphics();
-                rectangle.lineStyle(1, COLORS.White, 1);
-                rectangle.beginFill(color);
-                rectangle.drawRect(0, 0, 25, 25);
-                rectangle.endFill();
-                rectangle.x = boardX + (x * GAME.Tetrimino.Length);
-                rectangle.y = boardY + (y * GAME.Tetrimino.Length);
-
-                groundPieces.push(rectangle);
-                app.stage.addChild(rectangle);
+                groundPieces.push(sprite);
+                app.stage.addChild(sprite);
             }
         }
     }
@@ -312,10 +301,14 @@ function drawControl(app) {
 }
 
 // methods for drawing tetriminos
-// TODO: better to rename the sprites
 function getSmallTetriminoSprite(type) {
     const id = loader.resources["tileset.json"].textures;
-    return new Sprite(id[`t_${type - 1}_small.png`]);
+    return new Sprite(id[`t_${type}_small.png`]);
+}
+
+function getSmallSquareSprite(type) {
+    const id = loader.resources["tileset.json"].textures;
+    return new Sprite(id[`square_${type}.png`]);
 }
 
 function colorOfEnum(color) {
