@@ -107,6 +107,7 @@ function startDrawLoop(app) {
         drawGroundHint(app);
         drawNextPieces(app);
         drawHeldPiece(app);
+        drawScore(app);
     });
 
     ticker.start();
@@ -237,8 +238,9 @@ function drawMainGrid(app) {
     }
 }
 
+let score = new Text("", GAME.TextStyle);
 function drawScore(app) {
-    let score = new Text("0000050", GAME.TextStyle);
+    score.text = ('0000000' + game.score).substr(-7);
     score.x = 430;
     score.y = 16;
     app.stage.addChild(score);

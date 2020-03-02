@@ -97,6 +97,8 @@ pub struct Game {
     // Set to hold all the user events for this update
     // Set because I only want to process one event of each
     events: HashSet<Event>,
+
+    pub score: usize,
 }
 
 #[wasm_bindgen]
@@ -125,6 +127,7 @@ impl Game {
             active_piece_indexes: Vec::new(),
             ground_hint_indexes: Vec::new(),
             events: HashSet::new(),
+            score: 0,
         };
         game.update_active_piece_coords();
 
@@ -421,6 +424,7 @@ impl Game {
 
     fn erase_lines(&mut self) {
         let lines = self.check_erasable_lines();
+        self.score += lines.len() * 10;
 
         for line in lines {
             for y in (0..line).rev() {
