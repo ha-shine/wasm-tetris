@@ -100,7 +100,6 @@ function startDrawLoop(app) {
     drawActivePiece(app);
 
     const ticker = new Ticker();
-
     ticker.add(() => {
         game.update(BigInt(Math.floor(ticker.elapsedMS * 1000)));
         drawActivePiece(app);
@@ -192,8 +191,8 @@ function drawGroundHint(app) {
         let y = Math.floor(groundHint[i] / GAME.Board.Width);
 
         const rectangle = new Graphics();
-        rectangle.lineStyle(0, COLORS.White, 0.5);
-        rectangle.beginFill(color);
+        rectangle.lineStyle(0, COLORS.White, 0);
+        rectangle.beginFill(color, 0.5);
         rectangle.drawRect(0, 0, 25, 25);
         rectangle.endFill();
         rectangle.x = boardX + (x * GAME.Tetrimino.Length);

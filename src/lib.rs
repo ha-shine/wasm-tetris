@@ -85,9 +85,6 @@ pub struct Game {
     // if time delta greater than this is elapsed, I move one piece down by one unit
     fall_rate: Duration,
 
-    // indexes of lines which can be cleared/erased
-    clearable_lines: Vec<u8>,
-
     // vector to hold pairs of x,y coordinates in the form of index
     // for current active piece's individual squares
     // have to do this way because there is no other good way to pass a vector
@@ -125,7 +122,6 @@ impl Game {
             state: State::Playing,
             elapsed: Duration::from_micros(0),
             fall_rate: Duration::from_millis(500), // TODO: this should update
-            clearable_lines: Vec::new(),
             active_piece_indexes: Vec::new(),
             ground_hint_indexes: Vec::new(),
             events: HashSet::new(),
@@ -232,7 +228,9 @@ impl Game {
                     self.active_piece.y += 1;
                 }
             }
+
             self.try_fuse_active_piece();
+            self.erase_lines();
         } else if delta_y == 1 {
             // fusing and dropping are considered two separate fall events
             // to allow player to move the pieces into the gaps in the middle of the board
@@ -242,6 +240,7 @@ impl Game {
                 self.active_piece.y += 1;
             } else {
                 self.try_fuse_active_piece();
+                self.erase_lines();
             }
         }
 
@@ -414,6 +413,49 @@ impl Game {
                         return false;
                     }
                 }
+            }
+        }
+
+        true
+    }
+
+    fn erase_lines(&mut self) {
+        let lines = self.check_erasable_lines();
+
+        for line in lines {
+            for y in (0..line).rev() {
+                for x in 0..self.width {
+                    let idx = self.get_index(y, x);
+                    let next_idx = self.get_index(y + 1, x);
+
+                    self.board[next_idx] = self.board[idx];
+                }
+            }
+
+            for x in 0..self.width {
+                let idx = self.get_index(0, x);
+                self.board[idx] = Color::None;
+            }
+        }
+    }
+
+    fn check_erasable_lines(&self) -> Vec<usize> {
+        let mut lines = Vec::new();
+
+        for row in 0..self.height {
+            if self.can_erase_row(row) {
+                lines.push(row);
+            }
+        }
+
+        lines
+    }
+
+    fn can_erase_row(&self, row: usize) -> bool {
+        for x in 0..self.width {
+            let idx = self.get_index(row, x);
+            if self.board[idx] == Color::None {
+                return false;
             }
         }
 
