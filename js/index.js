@@ -1,5 +1,5 @@
-import { Game } from "../pkg/index";
-import { memory } from "../pkg/index_bg";
+import {Game} from "../pkg/index";
+import {memory} from "../pkg/index_bg";
 import * as WebFont from "webfontloader";
 import * as Pixi from "pixi.js";
 
@@ -107,7 +107,8 @@ function startDrawLoop(app) {
         game.update(BigInt(Math.floor(ticker.elapsedMS * 1000)));
         drawActivePiece(app);
         drawGround(app);
-        drawNext(app, game);
+        drawNextPieces(app);
+        drawHeldPiece(app);
     });
 
     ticker.start();
@@ -228,17 +229,49 @@ function drawHeld(app) {
     label.x = 190;
     label.y = 53;
     app.stage.addChild(label);
+
+    drawHeldPiece(app);
 }
 
-let nextPiecesSprites = [];
-function drawNext(app, game) {
-    nextPiecesSprites.forEach(piece => app.stage.removeChild(piece));
-    nextPiecesSprites = [];
+let held = null;
+function drawHeldPiece(app) {
+    let new_held_type = game.get_held();
+    if (new_held_type !== 0) {
+        let new_held = {
+            type: new_held_type,
+            sprite: null
+        };
 
+        if (!held) {
+            new_held.sprite = getSmallTetriminoSprite(new_held_type);
+            app.stage.addChild(new_held.sprite);
+        } else if (held.type !== new_held_type) {
+            app.stage.removeChild(held.sprite);
+            new_held.sprite = getSmallTetriminoSprite(new_held_type);
+            app.stage.addChild(new_held.sprite);
+        } else {
+            new_held.sprite = held.sprite;
+        }
+
+        held = new_held;
+        held.sprite.x = 195;
+        held.sprite.y = 91;
+    }
+}
+
+function drawNext(app, game) {
     let label = new Text("NEXT", GAME.TextStyle);
     label.x = 555;
     label.y = 53;
     app.stage.addChild(label);
+
+    drawNextPieces(app, game);
+}
+
+let nextPiecesSprites = [];
+function drawNextPieces(app) {
+    nextPiecesSprites.forEach(piece => app.stage.removeChild(piece));
+    nextPiecesSprites = [];
 
     const nextPiecesPtr = game.next_pieces();
     const nextPieces = new Uint8Array(memory.buffer, nextPiecesPtr, 3);
@@ -272,19 +305,19 @@ function drawControl(app) {
     ];
 
     sprites.forEach(sprite => {
-        let [name, xpos] = sprite;
+        let [name, xPos] = sprite;
         let s = new Sprite(id[name]);
-        s.x = xpos;
+        s.x = xPos;
         s.y = y;
         app.stage.addChild(s);
     })
 }
 
 // methods for drawing tetriminos
+// TODO: better to rename the sprites
 function getSmallTetriminoSprite(type) {
     const id = loader.resources["tileset.json"].textures;
-    let sprite = new Sprite(id[`t_${type}_small.png`]);
-    return sprite;
+    return new Sprite(id[`t_${type - 1}_small.png`]);
 }
 
 function colorOfEnum(color) {

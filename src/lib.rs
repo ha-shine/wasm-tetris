@@ -176,7 +176,25 @@ impl Game {
                 Event::Drop => delta_y = self.height,
 
                 Event::Rotate(rot) => rotation = Some(*rot),
-                Event::Hold => (),
+                Event::Hold => {
+                    if self.can_hold {
+                        let current_type = match self.held_type {
+                            Some(held) => held,
+                            None => {
+                                let t = self.next_pieces[0];
+                                self.next_pieces[0] = self.next_pieces[1];
+                                self.next_pieces[1] = self.next_pieces[2];
+                                self.next_pieces[2] = self.generator.next().unwrap();
+
+                                t
+                            }
+                        };
+
+                        self.held_type = Some(self.active_piece.piece.ttype);
+                        self.can_hold = false;
+                        self.active_piece = Self::initialize_tetrimino(current_type);
+                    }
+                },
             }
         }
         self.events.clear();
@@ -249,6 +267,13 @@ impl Game {
     pub fn hold(&mut self) {
         self.events.insert(Event::Hold);
     }
+
+    pub fn get_held(&self) -> u8 {
+        match self.held_type {
+            Some(t) => t as u8,
+            None => 0
+        }
+    }
 }
 
 impl Game {
@@ -289,6 +314,7 @@ impl Game {
         self.next_pieces[0] = self.next_pieces[1];
         self.next_pieces[1] = self.next_pieces[2];
         self.next_pieces[2] = self.generator.next().unwrap();
+        self.can_hold = true;
     }
 
     fn can_fuse_active_piece(&self, block: &'static Block) -> bool {
