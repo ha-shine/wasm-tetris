@@ -8,7 +8,23 @@ const crate = path.resolve(__dirname, "rust");
 module.exports = {
   mode: "production",
   entry: {
-    index: "./js/bootstrap.js"
+    index: "./ts/bootstrap.js"
+  },
+  devtool: "inline-source-map",
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: "ts-loader",
+        exclude: [
+          /node_modules/,
+          /pkg/
+        ]
+      }
+    ]
+  },
+  resolve: {
+    extensions: [ ".tsx", ".ts", ".js" ],
   },
   output: {
     path: dist,
