@@ -1,6 +1,6 @@
 node_modules
 /dist
-/target
+**/target
 /pkg
 /wasm-pack.log
 **/.DS_Store

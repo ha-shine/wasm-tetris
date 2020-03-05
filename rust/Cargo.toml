@@ -1,11 +1,11 @@
 # You must change these to your own details.
 [package]
-name = "rust-webpack-template"
-description = "My super awesome Rust, WebAssembly, and Webpack project!"
+name = "tetris-rs"
+description = "Tetris clone in WASM + PixiJs"
 version = "0.1.0"
-authors = ["You <you@example.com>"]
+authors = ["Htet Aung Shine <h@shine.rocks>"]
 categories = ["wasm"]
-readme = "README.md"
+readme = "../README.md"
 edition = "2018"
 
 [lib]
