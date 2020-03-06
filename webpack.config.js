@@ -17,14 +17,11 @@ module.exports = {
         test: /\.tsx?$/,
         use: "ts-loader",
         exclude: [
-          /node_modules/,
-          /pkg/
-        ]
+            /node_modules/,
+            /pkg/
+          ]
       }
     ]
-  },
-  resolve: {
-    extensions: [ ".tsx", ".ts", ".js" ],
   },
   output: {
     path: dist,

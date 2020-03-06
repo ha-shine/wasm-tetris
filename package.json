@@ -12,6 +12,7 @@
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
+    "@types/webfontloader": "^1.6.29",
     "@wasm-tool/wasm-pack-plugin": "^0.4.2",
     "copy-webpack-plugin": "^5.0.3",
     "rimraf": "^2.6.3",

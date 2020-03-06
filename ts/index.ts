@@ -1,7 +1,7 @@
-import {Game} from "../pkg/index";
-import {memory} from "../pkg/index_bg";
+import { Game } from "../pkg/index";
+import { memory } from "../pkg/index_bg";
 import * as WebFont from "webfontloader";
-import * as Pixi from "pixi.js";
+import { Application, Graphics, Text, TextStyle, Sprite, Ticker, Loader } from "pixi.js";
 
 WebFont.load({
     custom: {
@@ -9,15 +9,7 @@ WebFont.load({
     }
 });
 
-// aliases for Pixi's classes
-const Application = Pixi.Application;
-const Graphics = Pixi.Graphics;
-const Text = Pixi.Text;
-const TextStyle = Pixi.TextStyle;
-const Sprite = Pixi.Sprite;
-const Ticker = Pixi.Ticker;
-
-const loader = Pixi.Loader.shared;
+const loader = Loader.shared;
 
 // declare some constants
 const COLORS = {
@@ -51,7 +43,7 @@ const GAME = {
     }),
 };
 
-const canvas = document.getElementById("canvas");
+const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const app = new Application({
     width: WIDTH,
     height: HEIGHT,
@@ -61,12 +53,15 @@ const app = new Application({
 });
 const game = Game.new(GAME.Board.Width, GAME.Board.Height);
 
-loader.add("tileset.png")
+loader
+      .add("tileset.png")
       .add("tileset.json")
-      .load(() => setup(app));
+      .load(() => {
+          setup(app);
+      });
 
 
-function setup(app) {
+function setup(app: any) {
     drawMainGrid(app);
     drawScore(app);
     drawHeld(app);
@@ -96,7 +91,7 @@ function setup(app) {
     startDrawLoop(app);
 }
 
-function startDrawLoop(app) {
+function startDrawLoop(app: any) {
     drawActivePiece(app);
 
     const ticker = new Ticker();
@@ -113,8 +108,8 @@ function startDrawLoop(app) {
     ticker.start();
 }
 
-let activePieces = [];
-function drawActivePiece(app) {
+let activePieces: any[] = [];
+function drawActivePiece(app: any) {
     // clear the existing active pieces first
     activePieces.forEach((piece) => app.stage.removeChild(piece));
     activePieces = [];
@@ -142,8 +137,8 @@ function drawActivePiece(app) {
     }
 }
 
-let groundPieces = [];
-function drawGround(app) {
+let groundPieces: any[] = [];
+function drawGround(app: any) {
     groundPieces.forEach((piece) => app.stage.removeChild(piece));
     groundPieces = [];
 
@@ -171,8 +166,8 @@ function drawGround(app) {
     }
 }
 
-let groundHintSquares = [];
-function drawGroundHint(app) {
+let groundHintSquares: any[] = [];
+function drawGroundHint(app: any) {
     groundHintSquares.forEach((piece) => app.stage.removeChild(piece));
     groundHintSquares = [];
 
@@ -204,7 +199,7 @@ function drawGroundHint(app) {
     }
 }
 
-function drawMainGrid(app) {
+function drawMainGrid(app: any) {
     const rectangle = new Graphics();
     const boardWidth = GAME.Tetrimino.Length * GAME.Board.Width;
     const boardHeight = GAME.Tetrimino.Length * GAME.Board.Height;
@@ -239,14 +234,14 @@ function drawMainGrid(app) {
 }
 
 let score = new Text("", GAME.TextStyle);
-function drawScore(app) {
+function drawScore(app: any) {
     score.text = ('0000000' + game.score).substr(-7);
     score.x = 430;
     score.y = 16;
     app.stage.addChild(score);
 }
 
-function drawHeld(app) {
+function drawHeld(app: any) {
     let label = new Text("HELD", GAME.TextStyle);
     label.x = 190;
     label.y = 53;
@@ -255,11 +250,11 @@ function drawHeld(app) {
     drawHeldPiece(app);
 }
 
-let held = null;
-function drawHeldPiece(app) {
+let held: any = null;
+function drawHeldPiece(app: any) {
     let new_held_type = game.get_held();
     if (new_held_type !== 0) {
-        let new_held = {
+        let new_held: any = {
             type: new_held_type,
             sprite: null
         };
@@ -281,17 +276,17 @@ function drawHeldPiece(app) {
     }
 }
 
-function drawNext(app, game) {
+function drawNext(app: any, game: any) {
     let label = new Text("NEXT", GAME.TextStyle);
     label.x = 555;
     label.y = 53;
     app.stage.addChild(label);
 
-    drawNextPieces(app, game);
+    drawNextPieces(app);
 }
 
-let nextPiecesSprites = [];
-function drawNextPieces(app) {
+let nextPiecesSprites: any[] = [];
+function drawNextPieces(app: any) {
     nextPiecesSprites.forEach(piece => app.stage.removeChild(piece));
     nextPiecesSprites = [];
 
@@ -307,7 +302,7 @@ function drawNextPieces(app) {
     }
 }
 
-function drawControl(app) {
+function drawControl(app: any) {
     let boardWidth = GAME.Tetrimino.Length * GAME.Board.Width;
     let boardHeight = GAME.Tetrimino.Length * GAME.Board.Height;
 
@@ -329,24 +324,24 @@ function drawControl(app) {
     sprites.forEach(sprite => {
         let [name, xPos] = sprite;
         let s = new Sprite(id[name]);
-        s.x = xPos;
+        s.x = xPos as number;
         s.y = y;
         app.stage.addChild(s);
     })
 }
 
 // methods for drawing tetriminos
-function getSmallTetriminoSprite(type) {
+function getSmallTetriminoSprite(type: any) {
     const id = loader.resources["tileset.json"].textures;
     return new Sprite(id[`t_${type}_small.png`]);
 }
 
-function getSmallSquareSprite(type) {
+function getSmallSquareSprite(type: any) {
     const id = loader.resources["tileset.json"].textures;
     return new Sprite(id[`square_${type}.png`]);
 }
 
-function colorOfEnum(color) {
+function colorOfEnum(color: any) {
     switch (color) {
         case 1: return COLORS.Cyan;
         case 2: return COLORS.Yellow;
