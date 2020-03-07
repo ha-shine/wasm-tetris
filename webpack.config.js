@@ -23,6 +23,9 @@ module.exports = {
       }
     ]
   },
+  resolve: {
+    extensions: [".ts", ".tsx", ".js", ".wasm", ".json"]
+  },
   output: {
     path: dist,
     filename: "bootstrap.js"
