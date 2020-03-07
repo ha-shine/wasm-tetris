@@ -15,6 +15,7 @@
     "@types/webfontloader": "^1.6.29",
     "@wasm-tool/wasm-pack-plugin": "^0.4.2",
     "copy-webpack-plugin": "^5.0.3",
+    "prettier": "^1.19.1",
     "rimraf": "^2.6.3",
     "ts-loader": "^6.2.1",
     "typescript": "^3.8.3",

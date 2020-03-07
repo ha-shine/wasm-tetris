@@ -1,57 +1,64 @@
 :root {
-    --white: #000000;
-    --grey-fg: #EEEEEE;
-    --main-bg-color: #1B262C;
-    --piece-cyan: #47C7EE;
-    --piece-yellow: #FFCC00;
-    --piece-purple: #6D59EF;
-    --piece-green: #B0CC13;
-    --piece-red: #FF1149;
-    --piece-blue: #3C9EE3;
-    --piece-orange: #FF6536;
+  --white: #000000;
+  --grey-fg: #eeeeee;
+  --main-bg-color: #1b262c;
+  --piece-cyan: #47c7ee;
+  --piece-yellow: #ffcc00;
+  --piece-purple: #6d59ef;
+  --piece-green: #b0cc13;
+  --piece-red: #ff1149;
+  --piece-blue: #3c9ee3;
+  --piece-orange: #ff6536;
 }
 
 body {
-    position: absolute;
-    top: 0;
-    left: 0;
-    min-width: 100%;
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: 760px auto;
-    background: var(--main-bg-color);
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-rows: 760px auto;
+  background: var(--main-bg-color);
 }
 
 .canvas-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 footer {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding-bottom: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 44px;
 
-    color: var(--grey-fg);
-    font-family: neue-kabel, sans-serif;
-    font-weight: 300;
-    font-style: normal;
-    line-height: 1.8;
+  color: var(--grey-fg);
+  font-family: neue-kabel, sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  line-height: 1.8;
 }
 
-footer .social, footer .social a {
-    font-size: 24px;
-    color: var(--grey-fg);
+footer .social,
+footer .social a {
+  font-size: 24px;
+  color: var(--grey-fg);
 }
 
 canvas {
-    background: 
-        linear-gradient(to right, var(--grey-fg) 33%, rgba(255,255,255,0) 0%) top repeat-x,
-        linear-gradient(to right, var(--grey-fg) 33%, rgba(255,255,255,0) 0%) bottom repeat-x,
-        linear-gradient(var(--grey-fg) 33%, rgba(255,255,255,0) 0%) left repeat-y,
-        linear-gradient(var(--grey-fg) 33%, rgba(255,255,255,0) 0%) right repeat-y;
-    background-size: 20px 1px, 20px 1px, 1px 20px, 1px 20px;
+  background: linear-gradient(
+        to right,
+        var(--grey-fg) 33%,
+        rgba(255, 255, 255, 0) 0%
+      )
+      top repeat-x,
+    linear-gradient(to right, var(--grey-fg) 33%, rgba(255, 255, 255, 0) 0%)
+      bottom repeat-x,
+    linear-gradient(var(--grey-fg) 33%, rgba(255, 255, 255, 0) 0%) left repeat-y,
+    linear-gradient(var(--grey-fg) 33%, rgba(255, 255, 255, 0) 0%) right
+      repeat-y;
+  background-size: 20px 1px, 20px 1px, 1px 20px, 1px 20px;
 }

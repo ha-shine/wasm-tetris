@@ -16,10 +16,7 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: "ts-loader",
-        exclude: [
-            /node_modules/,
-            /pkg/
-          ]
+        exclude: [/node_modules/, /pkg/]
       }
     ]
   },
@@ -31,16 +28,14 @@ module.exports = {
     filename: "bootstrap.js"
   },
   devServer: {
-    contentBase: dist,
+    contentBase: dist
   },
   plugins: [
-    new CopyPlugin([
-      path.resolve(__dirname, "static")
-    ]),
+    new CopyPlugin([path.resolve(__dirname, "static")]),
 
     new WasmPackPlugin({
       crateDirectory: crate,
       extraArgs: "--out-name index --out-dir ../pkg"
-    }),
+    })
   ]
 };
