@@ -68,26 +68,6 @@ function setup(app: any) {
     drawNext(app, game);
     drawControl(app);
 
-    window.addEventListener("keydown", function(event) {
-        switch (event.key) {
-
-            case "ArrowLeft":   game.move_left(); break;
-            case "ArrowRight":  game.move_right(); break;
-            case "ArrowDown":   game.move_down(); break;
-            case " ":           game.drop(); break;
-            case "Z":
-            case "z":           game.rotate_counter_clockwise(); break;
-            case "X":
-            case "x":           game.rotate_clockwise(); break;
-            case "C":
-            case "c":           game.hold(); break;
-
-            default: return;
-        }
-
-        event.preventDefault();
-    });
-
     startDrawLoop(app);
 }
 
