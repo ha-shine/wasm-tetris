@@ -11,8 +11,9 @@ class GameState {
 
   // get the indexes of active piece's location on game board
   get activePieceIndexes(): Uint8Array {
+    const len = this.game.active_piece_coords_len();
     const ptr = this.game.active_piece_coords();
-    return new Uint8Array(memory.buffer, ptr, 4);
+    return new Uint8Array(memory.buffer, ptr, len);
   }
 
   get activePieceColor(): number {
@@ -25,8 +26,9 @@ class GameState {
   }
 
   get groundHintIndexes(): Uint8Array {
+    const len = this.game.ground_hint_coords_len();
     const ptr = this.game.ground_hint_coords();
-    return new Uint8Array(memory.buffer, ptr, 4);
+    return new Uint8Array(memory.buffer, ptr, len);
   }
 
   get nextPieces(): Uint8Array {

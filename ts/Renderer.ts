@@ -174,7 +174,7 @@ export class Renderer {
     const activePieceIndexes = game.activePieceIndexes;
     const [gridX, gridY] = Renderer.gridXY;
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < activePieceIndexes.length; i++) {
       let pieceX = activePieceIndexes[i] % BOARD_WIDTH;
       let pieceY = Math.floor(activePieceIndexes[i] / BOARD_WIDTH);
 

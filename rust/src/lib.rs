@@ -28,6 +28,7 @@ pub fn main_js() -> Result<(), JsValue> {
     Ok(())
 }
 
+#[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
 enum State {
     Playing,
     Lost,
@@ -142,8 +143,16 @@ impl Game {
         self.next_pieces.as_ptr()
     }
 
+    pub fn active_piece_coords_len(&self) -> usize {
+        self.active_piece_indexes.len()
+    }
+
     pub fn active_piece_coords(&self) -> *const u8 {
         self.active_piece_indexes.as_ptr()
+    }
+
+    pub fn ground_hint_coords_len(&self) -> usize {
+        self.ground_hint_indexes.len()
     }
 
     pub fn ground_hint_coords(&self) -> *const u8 {
@@ -155,6 +164,10 @@ impl Game {
     }
 
     pub fn update(&mut self, elapsed: u64) {
+        if self.state == State::Lost {
+            return;
+        }
+
         let elapsed = Duration::from_micros(elapsed);
         self.elapsed += elapsed;
 
@@ -234,6 +247,7 @@ impl Game {
 
             self.try_fuse_active_piece();
             self.erase_lines();
+            self.check_game_over();
         } else if delta_y == 1 {
             // fusing and dropping are considered two separate fall events
             // to allow player to move the pieces into the gaps in the middle of the board
@@ -244,6 +258,7 @@ impl Game {
             } else {
                 self.try_fuse_active_piece();
                 self.erase_lines();
+                self.check_game_over();
             }
         }
 
@@ -304,6 +319,11 @@ impl Game {
                 if block[y * 4 + x] == 1 {
                     let x = piece_x + x as isize;
                     let y = piece_y + y as isize;
+
+                    if x < 0 || y < 0 {
+                        continue;
+                    }
+
                     let idx = self.get_index(y as usize, x as usize);
                     self.active_piece_indexes.push(idx as u8);
                 }
@@ -313,6 +333,10 @@ impl Game {
 
     fn update_ground_hint_coords(&mut self) {
         self.ground_hint_indexes.clear();
+
+        if self.state == State::Lost {
+            return;
+        }
 
         let block = self.active_piece.piece.block();
         let block_x = self.active_piece.x;
@@ -350,6 +374,21 @@ impl Game {
         self.next_pieces[1] = self.next_pieces[2];
         self.next_pieces[2] = self.generator.next().unwrap();
         self.can_hold = true;
+    }
+
+    fn check_game_over(&mut self) {
+        // game ending state, hack around the fact that the pieces don't have runway space
+        // before the grid by moving them up square by square
+        let block = self.active_piece.piece.block();
+        if self.is_fused_in_ground(block, self.active_piece.x, self.active_piece.y) {
+            self.active_piece.y -= 1;
+            self.state = State::Lost;
+        }
+
+        if self.is_fused_in_ground(block, self.active_piece.x, self.active_piece.y) {
+            self.active_piece.y -= 1;
+            self.state = State::Lost;
+        }
     }
 
     fn can_fuse_active_piece(&self, block: &'static Block) -> bool {
@@ -420,6 +459,27 @@ impl Game {
         }
 
         true
+    }
+
+    fn is_fused_in_ground(&self, block: &'static Block, x: isize, y: isize) -> bool {
+        for block_y in 0..4 {
+            for block_x in 0..4 {
+                if block[block_y * 4 + block_x] == 1 {
+                    let board_x = x + block_x as isize;
+                    let board_y = y + block_y as isize;
+
+                    if board_x >= 0 && board_x < self.width as isize
+                        && board_y >= 0 && board_y < self.height as isize {
+                        let idx = self.get_index(board_y as usize, board_x as usize);
+                        if self.board[idx] != Color::None {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        false
     }
 
     fn erase_lines(&mut self) {
