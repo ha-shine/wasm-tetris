@@ -44,6 +44,10 @@ class GameState {
     return this.game.score;
   }
 
+  get isLost(): boolean {
+    return this.game.is_lost();
+  }
+
   setupControls(): void {
     window.addEventListener("keydown", event => {
       switch (event.key) {
@@ -82,6 +86,10 @@ class GameState {
 
   tick(elapsedMS: number): void {
     this.game.update(BigInt(Math.floor(elapsedMS * 1000)));
+  }
+
+  restart(): void {
+    this.game.restart_game();
   }
 }
 

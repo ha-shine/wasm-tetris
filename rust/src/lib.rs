@@ -1,9 +1,9 @@
+use std::collections::HashSet;
 use std::time::Duration;
 
 use wasm_bindgen::prelude::*;
 
 pub use tetrimino::*;
-use std::collections::HashSet;
 
 mod utils;
 pub mod tetrimino;
@@ -214,7 +214,7 @@ impl Game {
                         self.can_hold = false;
                         self.active_piece = Self::initialize_tetrimino(current_type);
                     }
-                },
+                }
             }
         }
         self.events.clear();
@@ -299,6 +299,32 @@ impl Game {
             Some(t) => t as u8,
             None => 0
         }
+    }
+
+    pub fn is_lost(&self) -> bool {
+        self.state == State::Lost
+    }
+
+    pub fn restart_game(&mut self) {
+        self.state = State::Playing;
+        self.score = 0;
+        for sq in self.board.iter_mut() {
+            *sq = Color::None;
+        }
+        self.active_piece_indexes.clear();
+        self.ground_hint_indexes.clear();
+        self.events.clear();
+
+        self.generator = SevenGenerator::new();
+        self.next_pieces = Vec::new();
+        self.next_pieces.push(self.generator.next().unwrap());
+        self.next_pieces.push(self.generator.next().unwrap());
+        self.next_pieces.push(self.generator.next().unwrap());
+        self.active_piece = Self::initialize_tetrimino(self.generator.next().unwrap());
+        self.held_type = None;
+        self.can_hold = true;
+        self.elapsed = Duration::from_micros(0);
+        self.update_active_piece_coords();
     }
 }
 

@@ -1,5 +1,6 @@
 import {
   Application,
+  Container,
   Graphics,
   ITextureDictionary,
   Loader,
@@ -14,8 +15,8 @@ import {
   BOARD_WIDTH_PX,
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
-  Color,
-  COLOR_WHITE,
+  Color, COLOR_MAINBG,
+  COLOR_WHITE, COLOR_YELLOW,
   TETRIMINO_WIDTH_PX,
   toHex
 } from "./Constants";
@@ -35,12 +36,18 @@ export class Renderer {
   private groundSprites: Sprite[];
   private nextPieceSprites: Sprite[];
   private groundHintSquares: Graphics[];
+  private startButton: Container;
+  private restartButton: Container;
 
   private readonly heldPieceSprite: Sprite;
   private readonly score: Text;
 
-  constructor(app: Application, loader: Loader) {
+  constructor(app: Application,
+              loader: Loader,
+              onStartButtonClicked: () => void,
+              onRestartButtonClicked: () => void) {
     this.pixi = app;
+    this.pixi.stage.sortableChildren = true;
     this.loader = loader;
 
     this.score = new Text("", TEXT_STYLE);
@@ -57,6 +64,73 @@ export class Renderer {
     this.heldPieceSprite.x = 195;
     this.heldPieceSprite.y = 91;
     this.pixi.stage.addChild(this.heldPieceSprite);
+
+    this.startButton = Renderer.buildStartButtonContainer(onStartButtonClicked);
+    this.pixi.stage.addChild(this.startButton);
+
+    this.restartButton = Renderer.buildRestartButtonContainer(onRestartButtonClicked);
+    this.restartButton.visible = false;
+    this.pixi.stage.addChild(this.restartButton);
+  }
+
+  private static buildStartButtonContainer(onStartButtonClicked: () => void): Container {
+    let container = new Container();
+    let x = CANVAS_WIDTH/2 - 66;
+    let y = CANVAS_HEIGHT/2 - 20;
+
+    const rectangle = new Graphics();
+    rectangle.beginFill(COLOR_MAINBG);
+    rectangle.lineStyle(1, COLOR_YELLOW, 1);
+    rectangle.drawRoundedRect(0, 0, 132, 40, 10);
+    rectangle.endFill();
+    rectangle.x = x;
+    rectangle.y = y;
+    container.addChild(rectangle);
+    container.zIndex = 10;
+
+    const textStyle = new TextStyle({ fontFamily: "armada", fontSize: 18, fontWeight: "bold", fill: COLOR_YELLOW });
+    const text = new Text("START", textStyle);
+    text.x = x + 32;
+    text.y = y + 6;
+    container.addChild(text);
+    container.interactive = true;
+    container.buttonMode = true;
+    container.on("pointerdown", () => {
+      container.visible = false;
+      onStartButtonClicked();
+    });
+
+    return container;
+  }
+
+  private static buildRestartButtonContainer(onRestartButtonClicked: () => void): Container {
+    let container = new Container();
+    let x = CANVAS_WIDTH/2 - 66;
+    let y = CANVAS_HEIGHT/2 - 20;
+
+    const rectangle = new Graphics();
+    rectangle.beginFill(COLOR_MAINBG);
+    rectangle.lineStyle(1, COLOR_YELLOW, 1);
+    rectangle.drawRoundedRect(0, 0, 132, 40, 10);
+    rectangle.endFill();
+    rectangle.x = x;
+    rectangle.y = y;
+    container.addChild(rectangle);
+    container.zIndex = 10;
+
+    const textStyle = new TextStyle({ fontFamily: "armada", fontSize: 18, fontWeight: "bold", fill: COLOR_YELLOW });
+    const text = new Text("RESTART", textStyle);
+    text.x = x + 20;
+    text.y = y + 6;
+    container.addChild(text);
+    container.interactive = true;
+    container.buttonMode = true;
+    container.on("pointerdown", () => {
+      container.visible = false;
+      onRestartButtonClicked();
+    });
+
+    return container;
   }
 
   private static get gridXY(): [number, number] {
@@ -101,6 +175,7 @@ export class Renderer {
       line.lineTo(0, BOARD_HEIGHT_PX + 4);
       line.x = rectangle.x + i * TETRIMINO_WIDTH_PX + 2;
       line.y = rectangle.y;
+      line.zIndex = -1;
       this.pixi.stage.addChild(line);
     }
 
@@ -112,6 +187,7 @@ export class Renderer {
       line.lineTo(BOARD_WIDTH_PX + 4, 0);
       line.x = rectangle.x;
       line.y = rectangle.y + i * TETRIMINO_WIDTH_PX + 2;
+      line.zIndex = -1;
       this.pixi.stage.addChild(line);
     }
   }
@@ -163,6 +239,10 @@ export class Renderer {
     this.renderNextPieces(game);
     this.renderHeldPiece(game);
     this.renderScore(game);
+
+    if (game.isLost && !this.restartButton.visible) {
+      this.restartButton.visible = true;
+    }
   }
 
   private renderActivePiece(game: GameState): void {

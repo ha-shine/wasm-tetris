@@ -21,24 +21,27 @@ const application = new Application({
 
 const loader = Loader.shared;
 
-const renderer = new Renderer(application, loader);
 const state = new GameState();
+const renderer = new Renderer(application, loader, startGame, () => state.restart());
 
-function startGame() {
+function setupInterface() {
   renderer.setup();
   renderer.renderEmptyState();
   state.setupControls();
+}
 
-  const ticker = new Ticker();
-  ticker.add(() => {
-    state.tick(ticker.elapsedMS);
-    renderer.render(state);
-  });
+const ticker = new Ticker();
+ticker.autoStart = false;
+ticker.add(() => {
+  state.tick(ticker.elapsedMS);
+  renderer.render(state);
+});
 
+function startGame() {
   ticker.start();
 }
 
 loader
   .add("tileset.png")
   .add("tileset.json")
-  .load(startGame);
+  .load(setupInterface);
