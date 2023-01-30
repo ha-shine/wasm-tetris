@@ -6079,15 +6079,15 @@ __metadata:
   linkType: hard
 
 "terser@npm:^4.1.2":
-  version: 4.6.6
-  resolution: "terser@npm:4.6.6"
+  version: 4.8.1
+  resolution: "terser@npm:4.8.1"
   dependencies:
     commander: ^2.20.0
     source-map: ~0.6.1
     source-map-support: ~0.5.12
   bin:
     terser: bin/terser
-  checksum: 96844966bbb37cf3c3563358ecf7a1eba7fa82a092d297bd8fb17c07d2c2a6942e9f0ece5c60ac6cb1d14c6c05409e6184a8e4429002c54ce240c3f8a6af5181
+  checksum: b342819bf7e82283059aaa3f22bb74deb1862d07573ba5a8947882190ad525fd9b44a15074986be083fd379c58b9a879457a330b66dcdb77b485c44267f9a55a
   languageName: node
   linkType: hard
 
