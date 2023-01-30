@@ -1,7 +1,6 @@
 use js_sys::Math;
 
 // Shuffle given array using javascript's random
-// TODO: find out if there's native rust wasm rand crate
 pub fn shuffle<T: Copy>(arr: &mut [T]) {
     let mut current_index = arr.len();
 

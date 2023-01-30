@@ -8,11 +8,11 @@
     "test": "cargo test && wasm-pack test --headless"
   },
   "dependencies": {
-    "pixi.js": "^5.2.1",
-    "webfontloader": "^1.6.28"
+    "fontfaceobserver": "^2.3.0",
+    "pixi.js": "^5.2.1"
   },
   "devDependencies": {
-    "@types/webfontloader": "^1.6.29",
+    "@types/fontfaceobserver": "^2.1.0",
     "@wasm-tool/wasm-pack-plugin": "^0.4.2",
     "copy-webpack-plugin": "^5.0.3",
     "prettier": "^1.19.1",
