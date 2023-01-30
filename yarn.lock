@@ -759,14 +759,14 @@ __metadata:
   linkType: hard
 
 "ajv@npm:^6.1.0, ajv@npm:^6.10.2":
-  version: 6.12.0
-  resolution: "ajv@npm:6.12.0"
+  version: 6.12.6
+  resolution: "ajv@npm:6.12.6"
   dependencies:
     fast-deep-equal: ^3.1.1
     fast-json-stable-stringify: ^2.0.0
     json-schema-traverse: ^0.4.1
     uri-js: ^4.2.2
-  checksum: ca41b2185f0eb1cab8147d5cc6573328dc735a7068b48162381b0f7d5ffd6b490d4b35813ae2c5307712f3fba71a466b5fa439b74311b64f4cb91cc89f56f059
+  checksum: 874972efe5c4202ab0a68379481fbd3d1b5d0a7bd6d3cc21d40d3536ebff3352a2a1fabb632d4fd2cc7fe4cbdcd5ed6782084c9bbf7f32a1536d18f9da5007d4
   languageName: node
   linkType: hard
 
