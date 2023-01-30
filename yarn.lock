@@ -2234,11 +2234,9 @@ __metadata:
   linkType: hard
 
 "eventsource@npm:^1.0.7":
-  version: 1.0.7
-  resolution: "eventsource@npm:1.0.7"
-  dependencies:
-    original: ^1.0.0
-  checksum: 26d6d9103ed11c4ed9cd2b69fb204176649c9686ee2440dcd08d82f741b9d38cc6e0e13e0974591ee1b7c0fc3b78f5d99f399630e46c776e797c8696469f53ac
+  version: 1.1.2
+  resolution: "eventsource@npm:1.1.2"
+  checksum: fe8f2ac3c70b1b63ee3cef5c0a28680cb00b5747bfda1d9835695fab3ed602be41c5c799b1fc997b34b02633573fead25b12b036bdf5212f23a6aa9f59212e9b
   languageName: node
   linkType: hard
 
@@ -2595,7 +2593,7 @@ __metadata:
 
 "fsevents@patch:fsevents@^1.2.7#~builtin<compat/fsevents>":
   version: 1.2.11
-  resolution: "fsevents@patch:fsevents@npm%3A1.2.11#~builtin<compat/fsevents>::version=1.2.11&hash=d11327"
+  resolution: "fsevents@patch:fsevents@npm%3A1.2.11#~builtin<compat/fsevents>::version=1.2.11&hash=18f3a7"
   dependencies:
     bindings: ^1.5.0
     nan: ^2.12.1
@@ -4532,15 +4530,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"original@npm:^1.0.0":
-  version: 1.0.2
-  resolution: "original@npm:1.0.2"
-  dependencies:
-    url-parse: ^1.4.3
-  checksum: 8dca9311dab50c8953366127cb86b7c07bf547d6aa6dc6873a75964b7563825351440557e5724d9c652c5e99043b8295624f106af077f84bccf19592e421beb9
-  languageName: node
-  linkType: hard
-
 "os-browserify@npm:^0.3.0":
   version: 0.3.0
   resolution: "os-browserify@npm:0.3.0"
@@ -6166,7 +6155,7 @@ __metadata:
 
 "typescript@patch:typescript@^3.8.3#~builtin<compat/typescript>":
   version: 3.8.3
-  resolution: "typescript@patch:typescript@npm%3A3.8.3#~builtin<compat/typescript>::version=3.8.3&hash=c44097"
+  resolution: "typescript@patch:typescript@npm%3A3.8.3#~builtin<compat/typescript>::version=3.8.3&hash=a1c5e5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
