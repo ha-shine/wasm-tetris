@@ -11,11 +11,11 @@ export class Application {
     private readonly renderer: Renderer;
     private readonly ticker: PIXI.Ticker;
 
-    private constructor(canvas: HTMLCanvasElement) {
+    private constructor(canvas: HTMLCanvasElement, resources: Record<string, any>) {
         this.app = new PIXI.Application({
             width: CANVAS_WIDTH,
             height: CANVAS_HEIGHT,
-            transparent: true,
+            backgroundAlpha: 0,
             antialias: true,
             view: canvas
         });
@@ -24,7 +24,7 @@ export class Application {
         this.ticker.autoStart = false;
 
         this.state = new GameState();
-        this.renderer = new Renderer(this.app, PIXI.Loader.shared, () => this.ticker.start(), () => this.state.restart());
+        this.renderer = new Renderer(this.app, PIXI.Assets.loader, resources, () => this.ticker.start(), () => this.state.restart());
 
         this.ticker.add(() => {
             this.state.tick(this.ticker.elapsedMS);
@@ -47,15 +47,8 @@ export class Application {
         typekitLink.setAttribute("href", "https://use.typekit.net/uwv5rqv.css");
         document.head.appendChild(typekitLink);
 
-        let tileSetLoader = new Promise<void>((resolve) => {
-            PIXI.Loader
-                .shared
-                .add("tileset.png", tilesetImg)
-                .load(() => {
-                    console.log(`Loading ${tilesetImg}`)
-                    resolve();
-                });
-        });
+        PIXI.Assets.add("tileset.png", tilesetImg);
+        let resources = await PIXI.Assets.load(["tileset.png"]);
 
         let fonts = [
             {name: "Armada", weight: 400},
@@ -68,9 +61,9 @@ export class Application {
             return new FontFaceObserver(font.name, {weight: font.weight}).load();
         })
 
-        await Promise.all([tileSetLoader, ...fontObservers]);
+        await Promise.all([...fontObservers]);
 
-        let app = new Application(canvas);
+        let app = new Application(canvas, resources);
         await app.setup();
 
         return app;

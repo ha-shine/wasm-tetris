@@ -10,7 +10,9 @@ module.exports = {
     entry: {
         index: "./ts/bootstrap.js"
     },
-    devtool: "inline-source-map",
+    experiments: {
+        syncWebAssembly: true
+    },
     module: {
         rules: [
             {
@@ -20,28 +22,34 @@ module.exports = {
             },
             {
                 test: /\.png?$/i,
-                use: [
-                    {loader: "file-loader"}
-                ]
+                type: "asset/resource"
             }
         ]
     },
     resolve: {
-        extensions: [".ts", ".tsx", ".js", ".wasm", ".json", ".png"]
+        extensions: [".ts", ".tsx", ".js", ".wasm", ".json", ".png"],
+        fallback: {
+            util: require.resolve("util/")
+        }
     },
     output: {
         path: dist,
         filename: "bootstrap.js"
     },
     devServer: {
-        contentBase: dist
+        static: [
+            {directory: dist, watch: true},
+            {directory: path.resolve(__dirname, "static"), watch: true},
+            {directory: path.resolve(__dirname, "rust/pkg"), watch: true},
+        ]
     },
     plugins: [
         new CopyPlugin([path.resolve(__dirname, "static")]),
 
         new WasmPackPlugin({
             crateDirectory: crate,
-            extraArgs: "--out-name index --out-dir ../pkg"
+            outDir: "../pkg",
+            outName: "index"
         })
     ]
 };

@@ -1,12 +1,11 @@
 import {
-    Application,
+    Application, BaseTexture,
     Container,
     Graphics,
-    ITextureDictionary,
     Loader,
     Sprite, Spritesheet,
     Text,
-    TextStyle,
+    TextStyle, utils,
 } from "pixi.js";
 import {
     BOARD_HEIGHT,
@@ -22,6 +21,7 @@ import {
 } from "./Constants";
 import {GameState} from "./GameState";
 import tilesetJson from "./assets/tileset.json";
+import {Texture} from "@pixi/core";
 
 const TEXT_STYLE = new TextStyle({
     fontFamily: "armada",
@@ -32,7 +32,8 @@ const TEXT_STYLE = new TextStyle({
 export class Renderer {
     private pixi: Application;
     private loader: Loader;
-    private textures: ITextureDictionary;
+    private textures: utils.Dict<Texture>;
+    private resources: Record<string, any>
     private activePieceSprites: Sprite[];
     private groundSprites: Sprite[];
     private nextPieceSprites: Sprite[];
@@ -45,11 +46,13 @@ export class Renderer {
 
     constructor(app: Application,
                 loader: Loader,
+                resources: Record<string, any>,
                 onStartButtonClicked: () => void,
                 onRestartButtonClicked: () => void) {
         this.pixi = app;
         this.pixi.stage.sortableChildren = true;
         this.loader = loader;
+        this.resources = resources;
 
         this.score = new Text("", TEXT_STYLE);
         this.score.x = 430;
@@ -75,13 +78,9 @@ export class Renderer {
     }
 
     async setup() {
-        let sheet = new Spritesheet(Loader.shared.resources["tileset.png"].texture.baseTexture, tilesetJson);
-        this.textures = await new Promise<any>((resolve) => {
-            sheet.parse(() => {
-                console.log(sheet.textures);
-                resolve(sheet.textures);
-            })
-        });
+        let base = this.resources["tileset.png"].baseTexture;
+        let sheet = new Spritesheet(base, tilesetJson);
+        this.textures = await sheet.parse();
     }
 
     private static buildStartButtonContainer(onStartButtonClicked: () => void): Container {
@@ -105,7 +104,6 @@ export class Renderer {
         text.y = y + 6;
         container.addChild(text);
         container.interactive = true;
-        container.buttonMode = true;
         container.on("pointerdown", () => {
             container.visible = false;
             onStartButtonClicked();
@@ -135,7 +133,6 @@ export class Renderer {
         text.y = y + 6;
         container.addChild(text);
         container.interactive = true;
-        container.buttonMode = true;
         container.on("pointerdown", () => {
             container.visible = false;
             onRestartButtonClicked();
