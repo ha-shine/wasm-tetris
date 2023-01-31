@@ -36,6 +36,12 @@ export class Application {
     }
 
     static async start(canvas: HTMLCanvasElement): Promise<Application> {
+        let typekitLink = document.createElement("link");
+        typekitLink.setAttribute("rel", "stylesheet");
+        typekitLink.setAttribute("type", "text/css");
+        typekitLink.setAttribute("href", "https://use.typekit.net/uwv5rqv.css");
+        document.head.appendChild(typekitLink);
+
         let tileSetLoader = new Promise<void>((resolve) => {
             PIXI.Loader
                 .shared
@@ -46,22 +52,18 @@ export class Application {
                 });
         });
 
-        await tileSetLoader;
+        let fonts = [
+            {name: "Armada", weight: 400},
+            {name: "Armada", weight: 700},
+            {name: "Neue-Kabel", weight: 300},
+            {name: "Neue-Kabel", weight: 400}
+        ];
 
-        // Load typekit fonts and wait for FontFaceObserver to complete
-        let typekitLink = document.createElement("link");
-        typekitLink.setAttribute("rel", "stylesheet");
-        typekitLink.setAttribute("type", "text/css");
-        typekitLink.setAttribute("href", "https://use.typekit.net/uwv5rqv.css");
-        document.head.appendChild(typekitLink);
+        let fontObservers = fonts.map((font) => {
+            return new FontFaceObserver(font.name, {weight: font.weight}).load();
+        })
 
-        let armadaFont = new FontFaceObserver("Armada");
-        let nkFont = new FontFaceObserver("Neue-Kabel");
-
-        await Promise.all([
-            armadaFont.load(),
-            nkFont.load(),
-        ]);
+        await Promise.all([tileSetLoader, ...fontObservers]);
 
         return new Application(canvas);
     }

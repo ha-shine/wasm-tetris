@@ -1,14 +1,15 @@
 :root {
     --white: #000000;
     --grey-fg: #eeeeee;
-    --main-bg-color: #1b262c;
+    --main-bg-color: #171923;
 }
 
 body {
     position: absolute;
     top: 0;
     left: 0;
-    min-width: 100%;
+    width: 100vw;
+    margin: 0;
     display: grid;
     grid-template-columns: 100%;
     grid-template-rows: 760px auto;
