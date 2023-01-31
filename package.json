@@ -1,7 +1,7 @@
 {
-  "author": "You <you@example.com>",
-  "name": "rust-webpack-template",
-  "version": "0.1.0",
+  "author": "Htet Aung Shine <h@shine.rocks>",
+  "name": "wasm-tetris",
+  "version": "1.0.0",
   "scripts": {
     "build": "rimraf dist pkg && webpack",
     "start": "rimraf dist pkg && webpack-dev-server --open -d",
