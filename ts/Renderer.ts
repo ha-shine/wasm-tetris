@@ -4,9 +4,9 @@ import {
     Graphics,
     ITextureDictionary,
     Loader,
-    Sprite,
+    Sprite, Spritesheet,
     Text,
-    TextStyle
+    TextStyle,
 } from "pixi.js";
 import {
     BOARD_HEIGHT,
@@ -21,6 +21,7 @@ import {
     toHex
 } from "./Constants";
 import {GameState} from "./GameState";
+import tilesetJson from "./assets/tileset.json";
 
 const TEXT_STYLE = new TextStyle({
     fontFamily: "armada",
@@ -71,6 +72,16 @@ export class Renderer {
         this.restartButton = Renderer.buildRestartButtonContainer(onRestartButtonClicked);
         this.restartButton.visible = false;
         this.pixi.stage.addChild(this.restartButton);
+    }
+
+    async setup() {
+        let sheet = new Spritesheet(Loader.shared.resources["tileset.png"].texture.baseTexture, tilesetJson);
+        this.textures = await new Promise<any>((resolve) => {
+            sheet.parse(() => {
+                console.log(sheet.textures);
+                resolve(sheet.textures);
+            })
+        });
     }
 
     private static buildStartButtonContainer(onStartButtonClicked: () => void): Container {
@@ -138,17 +149,6 @@ export class Renderer {
             CANVAS_WIDTH / 2 - BOARD_WIDTH_PX / 2,
             CANVAS_HEIGHT / 2 - BOARD_HEIGHT_PX / 2
         ];
-    }
-
-    // load the required assets
-    setup(): void {
-        let textures = this.loader.resources["tileset.json"].textures;
-
-        if (!textures) {
-            throw Error("Failed to load tileset.json");
-        }
-
-        this.textures = textures;
     }
 
     // render an empty tetris board

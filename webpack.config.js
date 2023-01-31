@@ -6,36 +6,42 @@ const dist = path.resolve(__dirname, "dist");
 const crate = path.resolve(__dirname, "rust");
 
 module.exports = {
-  mode: "production",
-  entry: {
-    index: "./ts/bootstrap.js"
-  },
-  devtool: "inline-source-map",
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: "ts-loader",
-        exclude: [/node_modules/, /pkg/]
-      }
-    ]
-  },
-  resolve: {
-    extensions: [".ts", ".tsx", ".js", ".wasm", ".json"]
-  },
-  output: {
-    path: dist,
-    filename: "bootstrap.js"
-  },
-  devServer: {
-    contentBase: dist
-  },
-  plugins: [
-    new CopyPlugin([path.resolve(__dirname, "static")]),
+    mode: "production",
+    entry: {
+        index: "./ts/bootstrap.js"
+    },
+    devtool: "inline-source-map",
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: "ts-loader",
+                exclude: [/node_modules/, /pkg/]
+            },
+            {
+                test: /\.png?$/i,
+                use: [
+                    {loader: "file-loader"}
+                ]
+            }
+        ]
+    },
+    resolve: {
+        extensions: [".ts", ".tsx", ".js", ".wasm", ".json", ".png"]
+    },
+    output: {
+        path: dist,
+        filename: "bootstrap.js"
+    },
+    devServer: {
+        contentBase: dist
+    },
+    plugins: [
+        new CopyPlugin([path.resolve(__dirname, "static")]),
 
-    new WasmPackPlugin({
-      crateDirectory: crate,
-      extraArgs: "--out-name index --out-dir ../pkg"
-    })
-  ]
+        new WasmPackPlugin({
+            crateDirectory: crate,
+            extraArgs: "--out-name index --out-dir ../pkg"
+        })
+    ]
 };

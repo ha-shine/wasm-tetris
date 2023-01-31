@@ -3,6 +3,7 @@ import * as PIXI from "pixi.js";
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from "./Constants";
 import {GameState} from "./GameState";
 import {Renderer} from "./Renderer";
+import tilesetImg from "./assets/tileset.png";
 
 export class Application {
     private readonly app: PIXI.Application;
@@ -25,14 +26,18 @@ export class Application {
         this.state = new GameState();
         this.renderer = new Renderer(this.app, PIXI.Loader.shared, () => this.ticker.start(), () => this.state.restart());
 
-        this.renderer.setup();
-        this.renderer.renderEmptyState();
-        this.state.setupControls();
-
         this.ticker.add(() => {
             this.state.tick(this.ticker.elapsedMS);
             this.renderer.render(this.state);
         });
+    }
+
+
+    // The renderer, game state and tickers are all intertwined. I need to find a cleaner abstraction
+    private async setup() {
+        await this.renderer.setup();
+        this.renderer.renderEmptyState();
+        this.state.setupControls();
     }
 
     static async start(canvas: HTMLCanvasElement): Promise<Application> {
@@ -45,9 +50,9 @@ export class Application {
         let tileSetLoader = new Promise<void>((resolve) => {
             PIXI.Loader
                 .shared
-                .add("tileset.png")
-                .add("tileset.json")
+                .add("tileset.png", tilesetImg)
                 .load(() => {
+                    console.log(`Loading ${tilesetImg}`)
                     resolve();
                 });
         });
@@ -65,6 +70,9 @@ export class Application {
 
         await Promise.all([tileSetLoader, ...fontObservers]);
 
-        return new Application(canvas);
+        let app = new Application(canvas);
+        await app.setup();
+
+        return app;
     }
 }

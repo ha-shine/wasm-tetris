@@ -9,6 +9,6 @@
     "allowJs": true,
     "importHelpers": true,
     "moduleResolution": "Node",
-    "strictNullChecks": true
+    "strictNullChecks": true,
   }
 }
